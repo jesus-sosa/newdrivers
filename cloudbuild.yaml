@@ -66,9 +66,9 @@ steps:
       - '-c'
       - |
         # Retrieve SSH key from Secret Manager
+        mkdir -p /root/.ssh
         gcloud secrets versions access latest --secret=lightsail-ssh-key > /root/.ssh/id_rsa
         chmod 600 /root/.ssh/id_rsa
-        mkdir -p /root/.ssh
         echo "StrictHostKeyChecking no" > /root/.ssh/config
 
         # Pull and restart on Lightsail
