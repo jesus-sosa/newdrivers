@@ -17,6 +17,7 @@ class IntentoExamen(SQLModel, table=True):
     # Snapshot de la configuración al momento de iniciar el examen
     num_preguntas: int
     porcentaje_aprobacion: float
+    segundos_por_pregunta: int = Field(default=60)
     puntuacion: Optional[int] = Field(default=None)
     resultado: Optional[str] = Field(default=None, max_length=20)  # aprobado | reprobado
     iniciado_at: datetime = Field(
