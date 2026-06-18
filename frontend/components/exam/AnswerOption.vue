@@ -57,6 +57,10 @@ defineEmits<{
   cursor: not-allowed;
 }
 
+.answer-option--selected.answer-option--disabled {
+  opacity: 1;
+}
+
 .answer-option__letter {
   display: flex;
   align-items: center;
