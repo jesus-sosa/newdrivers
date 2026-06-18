@@ -11,6 +11,9 @@ from app.models import User, Pregunta, ConfiguracionExamen, IntentoExamen, Respu
 
 TEST_DATABASE_URL = "sqlite://"  # in-memory
 
+_ADMIN_PASSWORD = "Admin1234!"
+_STUDENT_PASSWORD = "Student1234!"
+
 
 @pytest.fixture(name="engine", scope="session")
 def engine_fixture():
@@ -47,16 +50,14 @@ def admin_user_fixture(session):
     user = User(
         nombre_completo="Admin Test",
         email="admin@test.com",
-        password_hash=hash_password("Admin1234!"),
+        password_hash=hash_password(_ADMIN_PASSWORD),
         rol="admin",
         activo=True,
     )
     session.add(user)
     session.commit()
     session.refresh(user)
-    yield user
-    session.delete(user)
-    session.commit()
+    return user
 
 
 @pytest.fixture(name="estudiante_user")
@@ -64,23 +65,21 @@ def estudiante_user_fixture(session):
     user = User(
         nombre_completo="Estudiante Test",
         email="estudiante@test.com",
-        password_hash=hash_password("Student1234!"),
+        password_hash=hash_password(_STUDENT_PASSWORD),
         rol="estudiante",
         activo=True,
     )
     session.add(user)
     session.commit()
     session.refresh(user)
-    yield user
-    session.delete(user)
-    session.commit()
+    return user
 
 
 @pytest.fixture(name="admin_token")
 def admin_token_fixture(client, admin_user):
     response = client.post(
         "/api/auth/login",
-        json={"email": "admin@test.com", "password": "Admin1234!"},
+        json={"email": "admin@test.com", "password": _ADMIN_PASSWORD},
     )
     assert response.status_code == 200
     return response.json()["access_token"]
@@ -90,7 +89,7 @@ def admin_token_fixture(client, admin_user):
 def estudiante_token_fixture(client, estudiante_user):
     response = client.post(
         "/api/auth/login",
-        json={"email": "estudiante@test.com", "password": "Student1234!"},
+        json={"email": "estudiante@test.com", "password": _STUDENT_PASSWORD},
     )
     assert response.status_code == 200
     return response.json()["access_token"]
