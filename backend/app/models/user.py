@@ -17,6 +17,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(max_length=200)
     rol: str = Field(
         default="estudiante",
+        max_length=50,
         sa_column_kwargs={"server_default": "estudiante"},
     )
     activo: bool = Field(default=True)
