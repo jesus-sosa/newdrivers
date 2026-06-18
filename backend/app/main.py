@@ -34,8 +34,8 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Routers (se agregarán conforme se implementen)
-# from app.routers import auth, exams, questions, admin
-# app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+from app.routers import auth
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 # app.include_router(exams.router, prefix="/api/exams", tags=["exams"])
 # app.include_router(questions.router, prefix="/api/questions", tags=["questions"])
 # app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
