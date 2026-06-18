@@ -52,6 +52,7 @@ export const useExam = () => {
   ): Promise<{ finished: boolean; error?: string }> => {
     if (!exam.attemptId) return { finished: false, error: 'No hay examen activo' }
 
+    exam.isLoading = true
     try {
       const data = await $fetch<{
         orden_respondido: number
@@ -83,8 +84,12 @@ export const useExam = () => {
         },
       })
 
-      if (data.examen_finalizado && data.resumen) {
-        exam.setResumen(data.resumen)
+      if (data.examen_finalizado) {
+        if (data.resumen) {
+          exam.setResumen(data.resumen)
+        } else {
+          exam.error = 'El examen finalizó pero no se recibió el resumen'
+        }
         return { finished: true }
       }
 
@@ -101,6 +106,8 @@ export const useExam = () => {
         if (typeof data?.detail === 'string') msg = data.detail
       }
       return { finished: false, error: msg }
+    } finally {
+      exam.isLoading = false
     }
   }
 
@@ -121,6 +128,7 @@ export const useExam = () => {
       exam.setResumen(data)
       return { success: true }
     } catch {
+      exam.error = 'Error al finalizar el examen'
       return { success: false }
     }
   }
