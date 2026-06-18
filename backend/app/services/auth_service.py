@@ -40,6 +40,8 @@ def login(email: str, password: str, session: Session) -> dict:
             "nombre_completo": user.nombre_completo,
             "email": user.email,
             "rol": user.rol,
+            "activo": user.activo,
+            "created_at": user.created_at,
         },
     }
 
