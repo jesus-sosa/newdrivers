@@ -310,6 +310,19 @@ def _finish_and_score(intento: IntentoExamen, attempt_id: UUID, session: Session
         select(RespuestaIntento).where(RespuestaIntento.intento_id == attempt_id)
     ).all()
 
+    # Guarda idempotente: si ya está finalizado, retornar el resultado actual
+    if intento.finalizado_at is not None:
+        return {
+            "attempt_id": str(intento.id),
+            "puntuacion": intento.puntuacion,
+            "total_preguntas": intento.num_preguntas,
+            "porcentaje_obtenido": round(
+                (intento.puntuacion / intento.num_preguntas * 100), 2
+            ) if intento.num_preguntas > 0 else 0.0,
+            "porcentaje_aprobacion": intento.porcentaje_aprobacion,
+            "resultado": intento.resultado,
+        }
+
     correctas = sum(1 for r in todas if r.es_correcta is True)
     total = intento.num_preguntas
 
@@ -394,9 +407,16 @@ def get_results(attempt_id: UUID, student_id: UUID | None, session: Session) -> 
         .order_by(RespuestaIntento.orden)
     ).all()
 
+    # Cargar todas las preguntas en una sola query para evitar N+1
+    pregunta_ids = [r.pregunta_id for r in respuestas]
+    preguntas_map = {
+        p.id: p
+        for p in session.exec(select(Pregunta).where(Pregunta.id.in_(pregunta_ids))).all()
+    }
+
     preguntas_data = []
     for respuesta in respuestas:
-        pregunta = session.get(Pregunta, respuesta.pregunta_id)
+        pregunta = preguntas_map[respuesta.pregunta_id]
         pregunta_dict = _build_pregunta_response(pregunta, respuesta.orden, include_answer=True)
         pregunta_dict["opcion_seleccionada"] = respuesta.opcion_seleccionada
         pregunta_dict["es_correcta"] = respuesta.es_correcta
