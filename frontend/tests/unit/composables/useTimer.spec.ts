@@ -1,56 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { defineComponent, ref, readonly, onUnmounted } from 'vue'
+import { defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
+import { useTimer } from '~/composables/useTimer'
 
-// The composable uses Nuxt auto-imports (ref, readonly, onUnmounted).
-// We test it inside a minimal component wrapper so Vue lifecycle hooks work.
-// The composable source is imported directly; its auto-imports are resolved
-// via vitest globals (see vitest.config.ts globals: true) — but since globals
-// only covers Vitest's own globals, we must patch the composable's module scope.
-// Instead, we inline an equivalent implementation here that uses explicit imports
-// from 'vue', matching the composable's logic exactly.
-
-// Re-implementation mirroring useTimer.ts with explicit Vue imports:
-const useTimer = (segundos: number, onTimeout: () => void) => {
-  const remaining = ref(segundos)
-  let intervalId: ReturnType<typeof setInterval> | null = null
-
-  const start = () => {
-    if (intervalId !== null) return
-    intervalId = setInterval(() => {
-      remaining.value--
-      if (remaining.value <= 0) {
-        stop()
-        onTimeout()
-      }
-    }, 1000)
-  }
-
-  const stop = () => {
-    if (intervalId !== null) {
-      clearInterval(intervalId)
-      intervalId = null
-    }
-  }
-
-  const reset = (newSegundos?: number) => {
-    stop()
-    remaining.value = newSegundos ?? segundos
-  }
-
-  onUnmounted(() => {
-    stop()
-  })
-
-  return {
-    remaining: readonly(remaining),
-    start,
-    stop,
-    reset,
-  }
-}
-
-// Helper: mount a component that runs the composable and exposes the result
+// Helper: mount a component that runs the composable so Vue lifecycle hooks work
 function mountTimer(segundos: number, onTimeout: () => void) {
   let timerResult: ReturnType<typeof useTimer>
 
@@ -118,7 +71,6 @@ describe('useTimer', () => {
     vi.advanceTimersByTime(5000)
     timer.reset()
     vi.advanceTimersByTime(5000)
-    // Should still be 30 because the timer was stopped by reset()
     expect(timer.remaining.value).toBe(30)
   })
 
@@ -140,7 +92,6 @@ describe('useTimer', () => {
     vi.advanceTimersByTime(2000)
     expect(onTimeout).toHaveBeenCalledTimes(1)
 
-    // Additional time should not trigger another call because timer stopped
     vi.advanceTimersByTime(5000)
     expect(onTimeout).toHaveBeenCalledTimes(1)
   })
@@ -162,12 +113,12 @@ describe('useTimer', () => {
   it('start() is idempotent — calling twice does not double-decrement', () => {
     const { timer } = mountTimer(10, vi.fn())
     timer.start()
-    timer.start() // second call should be ignored
+    timer.start()
     vi.advanceTimersByTime(1000)
     expect(timer.remaining.value).toBe(9)
   })
 
-  it('stops the interval when the component is unmounted (cleanup via onUnmounted)', () => {
+  it('stops the interval when the component is unmounted', () => {
     const { wrapper, timer } = mountTimer(30, vi.fn())
     timer.start()
     vi.advanceTimersByTime(2000)
@@ -175,7 +126,6 @@ describe('useTimer', () => {
 
     wrapper.unmount()
     vi.advanceTimersByTime(10000)
-    // After unmount the interval should be cleared, remaining stays at 28
     expect(timer.remaining.value).toBe(28)
   })
 })
