@@ -37,43 +37,16 @@ definePageMeta({
 })
 
 const route = useRoute()
-const auth = useAuthStore()
-const config = useRuntimeConfig()
-const apiBase = config.public.apiBase
+const { fetchResults } = useExam()
 
 const attemptId = route.params.id as string
 
 const isLoading = ref(true)
-const results = ref<{
-  attempt_id: string
-  iniciado_at: string
-  finalizado_at: string
-  puntuacion: number
-  total_preguntas: number
-  porcentaje_obtenido: number
-  porcentaje_aprobacion: number
-  resultado: 'aprobado' | 'reprobado'
-  preguntas: Array<{
-    orden: number
-    tema: string
-    pregunta: string
-    opciones: Record<string, string>
-    opcion_seleccionada: string | null
-    respuesta_correcta: string
-    es_correcta: boolean | null
-    tiempo_agotado: boolean
-    fundamento_juridico: string | null
-  }>
-} | null>(null)
+const results = ref<Awaited<ReturnType<typeof fetchResults>>>(null)
 
 onMounted(async () => {
-  try {
-    results.value = await $fetch(`${apiBase}/api/exams/${attemptId}/results`, {
-      headers: { Authorization: `Bearer ${auth.accessToken}` },
-    }) as typeof results.value
-  } finally {
-    isLoading.value = false
-  }
+  results.value = await fetchResults(attemptId)
+  isLoading.value = false
 })
 </script>
 

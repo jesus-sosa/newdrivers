@@ -133,6 +133,36 @@ export const useExam = () => {
     }
   }
 
+  const fetchResults = async (attemptId: string) => {
+    try {
+      return await $fetch<{
+        attempt_id: string
+        iniciado_at: string
+        finalizado_at: string
+        puntuacion: number
+        total_preguntas: number
+        porcentaje_obtenido: number
+        porcentaje_aprobacion: number
+        resultado: 'aprobado' | 'reprobado'
+        preguntas: Array<{
+          orden: number
+          tema: string
+          pregunta: string
+          opciones: Record<string, string>
+          opcion_seleccionada: string | null
+          respuesta_correcta: string
+          es_correcta: boolean | null
+          tiempo_agotado: boolean
+          fundamento_juridico: string | null
+        }>
+      }>(`${apiBase}/api/exams/${attemptId}/results`, {
+        headers: authHeaders.value,
+      })
+    } catch {
+      return null
+    }
+  }
+
   const fetchHistory = async (page = 1, pageSize = 10) => {
     try {
       return await $fetch<{
@@ -160,6 +190,7 @@ export const useExam = () => {
     startExam,
     submitAnswer,
     finishEarly,
+    fetchResults,
     fetchHistory,
     isLoading: computed(() => exam.isLoading),
     isExamStarted: computed(() => exam.isExamStarted),
