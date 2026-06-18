@@ -43,7 +43,6 @@ dist/
 
 # Docker
 docker-compose.override.yml
-.dockerignore
 
 # Claude
 claude.md
