@@ -79,6 +79,9 @@ speckit_output/
 superpowers_output/
 .superpowers/
 
+# Git worktrees
+.worktrees/
+
 # Misc
 *.log
 .temp/
