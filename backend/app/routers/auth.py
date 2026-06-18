@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
@@ -31,12 +32,19 @@ class UserResponse(BaseModel):
     nombre_completo: str
     email: str
     rol: str
+    activo: bool
+    created_at: datetime
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    token_type: str
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -51,7 +59,7 @@ def login(
         value=result["refresh_token"],
         httponly=True,
         secure=False,  # True en producción con HTTPS
-        samesite="lax",
+        samesite="strict",
         max_age=REFRESH_COOKIE_MAX_AGE,
         path="/api/auth",
     )
@@ -70,10 +78,17 @@ def register(
     user = auth_service.register(
         request.nombre_completo, request.email, request.password, session
     )
-    return {"id": str(user.id), "nombre_completo": user.nombre_completo, "email": user.email, "rol": user.rol}
+    return {
+        "id": str(user.id),
+        "nombre_completo": user.nombre_completo,
+        "email": user.email,
+        "rol": user.rol,
+        "activo": user.activo,
+        "created_at": user.created_at,
+    }
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=RefreshResponse)
 def refresh(
     response: Response,
     session: Annotated[Session, Depends(get_session)],
@@ -90,15 +105,13 @@ def refresh(
         value=result["refresh_token"],
         httponly=True,
         secure=False,
-        samesite="lax",
+        samesite="strict",
         max_age=REFRESH_COOKIE_MAX_AGE,
         path="/api/auth",
     )
-    # Retornamos sin campo "user" — el cliente ya tiene los datos del usuario
     return {
         "access_token": result["access_token"],
         "token_type": result["token_type"],
-        "user": {"id": "", "nombre_completo": "", "email": "", "rol": ""},
     }
 
 
@@ -118,4 +131,6 @@ def me(current_user: Annotated[User, Depends(get_current_user)]):
         "nombre_completo": current_user.nombre_completo,
         "email": current_user.email,
         "rol": current_user.rol,
+        "activo": current_user.activo,
+        "created_at": current_user.created_at,
     }
