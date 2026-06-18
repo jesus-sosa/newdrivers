@@ -1,9 +1,5 @@
 <template>
   <div class="dashboard">
-    <template #title>
-      <h1>Dashboard</h1>
-    </template>
-
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon stat-icon--blue">📋</div>
