@@ -148,13 +148,14 @@ class TestAnswerQuestion:
         assert response.status_code == 201
         return response.json()["attempt_id"]
 
-    def test_answer_question_advances_to_next(
+    def test_answer_question_correct(
         self,
         client: TestClient,
         session: Session,
         estudiante_token: str,
     ):
-        """Respuesta válida retorna la siguiente pregunta."""
+        """Respuesta correcta (opcion A = respuesta_correcta) es aceptada y avanza al orden 2.
+        La verificación de es_correcta=True se realiza vía /results en T037."""
         attempt_id = self._start_exam(client, estudiante_token, session)
 
         response = client.post(
