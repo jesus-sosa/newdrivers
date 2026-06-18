@@ -15,7 +15,7 @@ _ADMIN_PASSWORD = "Admin1234!"
 _STUDENT_PASSWORD = "Student1234!"
 
 
-@pytest.fixture(name="engine", scope="session")
+@pytest.fixture(name="engine")
 def engine_fixture():
     engine = create_engine(
         TEST_DATABASE_URL,

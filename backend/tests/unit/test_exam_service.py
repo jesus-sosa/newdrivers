@@ -22,15 +22,15 @@ class TestFisherYatesNoRepeats:
         assert len(result_ids) == 10
         assert len(set(result_ids)) == 10  # todos únicos
 
-    def test_fisher_yates_count_respected(self):
+    @pytest.mark.parametrize("count", [3, 5, 7])
+    def test_fisher_yates_count_respected(self, count: int):
         """El shuffle retorna exactamente `count` preguntas."""
         mock_preguntas = [MagicMock(id=i) for i in range(1, 11)]
 
         from app.services.exam_service import _shuffle_preguntas
 
-        for count in [3, 5, 7]:
-            result = _shuffle_preguntas(mock_preguntas, count=count)
-            assert len(result) == count
+        result = _shuffle_preguntas(mock_preguntas, count=count)
+        assert len(result) == count
 
 
 class TestScoreCalculation:

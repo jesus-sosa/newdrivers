@@ -2,7 +2,7 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.models import ConfiguracionExamen, Pregunta
 
@@ -44,7 +44,6 @@ def create_preguntas(session: Session, count: int = 5) -> list[Pregunta]:
         session.add(pregunta)
     session.commit()
     # Obtener con IDs asignados
-    from sqlmodel import select
     preguntas = session.exec(select(Pregunta)).all()
     return list(preguntas)
 
