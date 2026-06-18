@@ -1,0 +1,92 @@
+steps:
+  # 1. Backend tests
+  - name: 'python:3.11-slim'
+    id: 'backend-tests'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd backend
+        pip install --no-cache-dir -r requirements-dev.txt
+        pytest tests/ -v --tb=short
+    env:
+      - 'DATABASE_URL=postgresql://postgres:postgres@localhost:5432/newdrivers_exams_test'
+
+  # 2. Frontend tests
+  - name: 'node:20-alpine'
+    id: 'frontend-tests'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        cd frontend
+        npm install
+        npm test
+
+  # 3. Build backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-backend'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/newdrivers-exams-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/newdrivers-exams-backend:latest'
+      - './backend'
+    waitFor: ['backend-tests']
+
+  # 4. Build frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-frontend'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/newdrivers-exams-frontend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/newdrivers-exams-frontend:latest'
+      - './frontend'
+    waitFor: ['frontend-tests']
+
+  # 5. Push images
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-backend'
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/newdrivers-exams-backend']
+    waitFor: ['build-backend']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend'
+    args: ['push', '--all-tags', 'gcr.io/$PROJECT_ID/newdrivers-exams-frontend']
+    waitFor: ['build-frontend']
+
+  # 6. Deploy via SSH to Lightsail
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Retrieve SSH key from Secret Manager
+        gcloud secrets versions access latest --secret=lightsail-ssh-key > /root/.ssh/id_rsa
+        chmod 600 /root/.ssh/id_rsa
+        mkdir -p /root/.ssh
+        echo "StrictHostKeyChecking no" > /root/.ssh/config
+
+        # Pull and restart on Lightsail
+        ssh -i /root/.ssh/id_rsa ${_SSH_USER}@${_LIGHTSAIL_IP} "\
+          cd /opt/newdrivers/newdrivers-exams && \
+          docker compose -f docker-compose.prod.yml pull && \
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans"
+    waitFor: ['push-backend', 'push-frontend']
+
+images:
+  - 'gcr.io/$PROJECT_ID/newdrivers-exams-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/newdrivers-exams-backend:latest'
+  - 'gcr.io/$PROJECT_ID/newdrivers-exams-frontend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/newdrivers-exams-frontend:latest'
+
+substitutions:
+  _LIGHTSAIL_IP: 'REPLACE_WITH_LIGHTSAIL_IP'
+  _SSH_USER: 'ubuntu'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
