@@ -1,0 +1,76 @@
+name: newdrivers-exams
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exams-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/newdrivers_exams}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-change-in-production}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@newdrivers.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin1234!}
+    volumes:
+      - ./backend:/app
+      - ./backend/static:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - exams-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: exams-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE:-http://localhost:8000}
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.nuxt
+    depends_on:
+      - backend
+    networks:
+      - exams-net
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: exams-db
+    environment:
+      POSTGRES_DB: newdrivers_exams
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d newdrivers_exams"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - exams-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  exams-net:
+    internal: true
