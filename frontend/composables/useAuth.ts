@@ -59,11 +59,9 @@ export const useAuth = () => {
           credentials: 'include',
         }
       )
-      if (auth.user) {
-        auth.accessToken = response.access_token
-        if (process.client) {
-          localStorage.setItem('access_token', response.access_token)
-        }
+      auth.accessToken = response.access_token
+      if (process.client) {
+        localStorage.setItem('access_token', response.access_token)
       }
       return true
     } catch {
