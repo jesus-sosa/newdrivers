@@ -35,6 +35,14 @@ export const useAuthStore = defineStore('auth', {
       this.user = user
       if (process.client) {
         localStorage.setItem('access_token', token)
+        localStorage.setItem('auth_user', JSON.stringify(user))
+      }
+    },
+
+    setToken(token: string) {
+      this.accessToken = token
+      if (process.client) {
+        localStorage.setItem('access_token', token)
       }
     },
 
@@ -43,6 +51,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       if (process.client) {
         localStorage.removeItem('access_token')
+        localStorage.removeItem('auth_user')
       }
     },
 
@@ -51,6 +60,14 @@ export const useAuthStore = defineStore('auth', {
       const token = localStorage.getItem('access_token')
       if (!token) return
       this.accessToken = token
+      const userJson = localStorage.getItem('auth_user')
+      if (userJson) {
+        try {
+          this.user = JSON.parse(userJson) as User
+        } catch {
+          localStorage.removeItem('auth_user')
+        }
+      }
     },
   },
 })

@@ -25,11 +25,14 @@ export const useAuth = () => {
       auth.setAuth(response.access_token, response.user)
       return { success: true }
     } catch (error: unknown) {
-      const err = error as { data?: { detail?: string }; message?: string }
-      return {
-        success: false,
-        error: err.data?.detail ?? err.message ?? 'Error al iniciar sesión',
+      let errorMessage = 'Error al iniciar sesión'
+      if (error && typeof error === 'object') {
+        const err = error as Record<string, unknown>
+        const data = err.data as Record<string, unknown> | undefined
+        if (typeof data?.detail === 'string') errorMessage = data.detail
+        else if (typeof err.message === 'string') errorMessage = err.message
       }
+      return { success: false, error: errorMessage }
     } finally {
       auth.isLoading = false
     }
@@ -59,10 +62,7 @@ export const useAuth = () => {
           credentials: 'include',
         }
       )
-      auth.accessToken = response.access_token
-      if (process.client) {
-        localStorage.setItem('access_token', response.access_token)
-      }
+      auth.setToken(response.access_token)
       return true
     } catch {
       auth.clearAuth()
