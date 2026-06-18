@@ -51,12 +51,10 @@ const { submitAnswer, finishEarly, isLoading, preguntaActual, resumen, totalPreg
 const selectedAnswer = ref<string | null>(null)
 const isSubmitting = ref(false)
 
-// Redirigir si no hay examen activo en el store
-onMounted(() => {
-  if (!examStore.attemptId) {
-    navigateTo('/dashboard')
-  }
-})
+// Guard de examen activo — ejecuta en SSR y cliente sin flash
+if (!examStore.attemptId) {
+  await navigateTo('/dashboard')
+}
 
 // Redirigir a resultados cuando el examen termina
 watch(resumen, (newResumen) => {
@@ -74,6 +72,7 @@ const { remaining, start: startTimer, stop: stopTimer, reset: resetTimer } = use
 // Iniciar timer al montar (si hay pregunta activa)
 onMounted(() => {
   if (preguntaActual.value) {
+    resetTimer(segundosPorPregunta.value)  // Asegurar duración correcta antes de iniciar
     startTimer()
   }
 })
