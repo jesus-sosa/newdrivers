@@ -110,16 +110,23 @@ npx vitest run
 
 ## Quick Smoke Test (US1 flow)
 
+The `seed.py` script now configures the exam with sensible defaults (20 questions, 60 s/question, 70% to pass). If you ran the seed before this update, re-run it:
+
+```bash
+cd backend && python -m app.scripts.seed
+```
+
 Once both services are running:
 
 1. Open `http://localhost:3000/login`
 2. Log in as `admin@newdrivers.com` / `Admin1234!`
-3. Navigate to **Configuración** and set `porcentaje_aprobacion` (e.g. 70)
-4. Log out and create a student account at `/register` (or create one from the admin panel)
-5. Log in as the student
-6. Click **Iniciar Examen** on the dashboard
-7. Answer all questions (or let the timer expire on some)
-8. Review results with color-coded answers and legal basis
+3. Log out, then create a student account at `http://localhost:3000/register`
+4. Log in as the student
+5. Click **Iniciar Examen** on the dashboard
+6. Answer all questions (or let the timer expire on some)
+7. Review results with color-coded answers and legal basis
+
+> **Note**: The Configuración, Preguntas, and Usuarios pages in the admin sidebar show a "coming soon" placeholder — those features are implemented in the next iterations (US3–US5).
 
 ---
 
