@@ -45,18 +45,18 @@ frontend/tests/            # Pruebas Vitest
 
 **Propósito**: Crear la estructura del repositorio y configurar las herramientas base.
 
-- [ ] T001 Crear estructura de directorios del repositorio: `backend/`, `frontend/`, `backend/app/`, `backend/tests/`, `frontend/components/`, `frontend/pages/`, `frontend/composables/`, `frontend/stores/`, `frontend/layouts/`, `frontend/tests/`
-- [ ] T002 [P] Inicializar proyecto Python backend con `pyproject.toml` y `requirements.txt` (fastapi, sqlmodel, alembic, python-jose[cryptography], passlib[bcrypt], python-multipart, httpx, pytest, pytest-asyncio)
-- [ ] T003 [P] Inicializar proyecto Nuxt 3 frontend con `package.json` (nuxt@3, pinia, @pinia/nuxt, vitest, @nuxt/test-utils, @nuxtjs/eslint-config)
-- [ ] T004 Crear `docker-compose.yml` con servicios: `backend` (port 8000), `frontend` (port 3000), `db` (PostgreSQL 15, port 5432 solo interno), red interna `exams-net`, red externa `nginx-proxy-net` y `db-net`
-- [ ] T005 [P] Crear `docker-compose.prod.yml` con servicios: `backend` y `frontend` únicamente (sin `db` local; usa BD de `newdrivers-infra` vía env var)
-- [ ] T006 [P] Crear `backend/Dockerfile` (imagen Python 3.11-slim, instala deps, copia app, CMD uvicorn)
-- [ ] T007 [P] Crear `frontend/Dockerfile` (imagen Node 20-alpine, `npm run build`, CMD node .output/server/index.mjs)
-- [ ] T008 [P] Crear `.env.example` con todas las variables requeridas: `DATABASE_URL`, `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `REFRESH_TOKEN_EXPIRE_DAYS`, `CORS_ORIGINS`, `NUXT_PUBLIC_API_BASE`
-- [ ] T009 [P] Crear `cloudbuild.yaml` con pasos: test backend, test frontend, build images, push to registry, deploy via SSH to Lightsail
-- [ ] T010 [P] Configurar `ruff`, `black` y `mypy` en `backend/pyproject.toml` (linting y type checking)
-- [ ] T011 [P] Configurar ESLint y Prettier para el frontend en `frontend/.eslintrc` y `frontend/.prettierrc`
-- [ ] T012 [P] Configurar Nuxt en `frontend/nuxt.config.ts` (runtimeConfig con `apiBase`, módulos: `@pinia/nuxt`)
+- [x] T001 Crear estructura de directorios del repositorio: `backend/`, `frontend/`, `backend/app/`, `backend/tests/`, `frontend/components/`, `frontend/pages/`, `frontend/composables/`, `frontend/stores/`, `frontend/layouts/`, `frontend/tests/`
+- [x] T002 [P] Inicializar proyecto Python backend con `pyproject.toml` y `requirements.txt` (fastapi, sqlmodel, alembic, python-jose[cryptography], passlib[bcrypt], python-multipart, httpx, pytest, pytest-asyncio)
+- [x] T003 [P] Inicializar proyecto Nuxt 3 frontend con `package.json` (nuxt@3, pinia, @pinia/nuxt, vitest, @nuxt/test-utils, @nuxtjs/eslint-config)
+- [x] T004 Crear `docker-compose.yml` con servicios: `backend` (port 8000), `frontend` (port 3000), `db` (PostgreSQL 15, port 5432 solo interno), red interna `exams-net`, red externa `nginx-proxy-net` y `db-net`
+- [x] T005 [P] Crear `docker-compose.prod.yml` con servicios: `backend` y `frontend` únicamente (sin `db` local; usa BD de `newdrivers-infra` vía env var)
+- [x] T006 [P] Crear `backend/Dockerfile` (imagen Python 3.11-slim, instala deps, copia app, CMD uvicorn)
+- [x] T007 [P] Crear `frontend/Dockerfile` (imagen Node 20-alpine, `npm run build`, CMD node .output/server/index.mjs)
+- [x] T008 [P] Crear `.env.example` con todas las variables requeridas: `DATABASE_URL`, `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `REFRESH_TOKEN_EXPIRE_DAYS`, `CORS_ORIGINS`, `NUXT_PUBLIC_API_BASE`
+- [x] T009 [P] Crear `cloudbuild.yaml` con pasos: test backend, test frontend, build images, push to registry, deploy via SSH to Lightsail
+- [x] T010 [P] Configurar `ruff`, `black` y `mypy` en `backend/pyproject.toml` (linting y type checking)
+- [x] T011 [P] Configurar ESLint y Prettier para el frontend en `frontend/.eslintrc` y `frontend/.prettierrc`
+- [x] T012 [P] Configurar Nuxt en `frontend/nuxt.config.ts` (runtimeConfig con `apiBase`, módulos: `@pinia/nuxt`)
 
 ---
 
@@ -66,27 +66,27 @@ frontend/tests/            # Pruebas Vitest
 
 **⚠️ CRÍTICO**: Ninguna historia puede comenzar hasta completar esta fase.
 
-- [ ] T013 Crear `backend/app/core/settings.py` — Pydantic `Settings` leyendo todas las variables de entorno del `.env.example`
-- [ ] T014 [P] Crear `backend/app/core/database.py` — SQLModel engine, `get_session` dependency, `create_db_and_tables()`
-- [ ] T015 [P] Crear `backend/app/core/security.py` — `create_access_token()`, `create_refresh_token()`, `verify_token()`, `hash_password()`, `verify_password()` usando `python-jose` y `passlib`
-- [ ] T016 Crear `backend/app/core/dependencies.py` — `get_current_user()` dependency (extrae JWT del header), `require_roles(roles: list[str])` factory que devuelve dependency y lanza HTTP 403 si el rol no coincide
-- [ ] T017 [P] Crear `backend/app/models/user.py` — SQLModel `User` con todos los campos de `data-model.md`: `id` (UUID), `nombre_completo`, `email` (unique), `password_hash`, `rol` (enum: admin/editor/estudiante), `activo`, `created_at`, `updated_at`
-- [ ] T018 [P] Crear `backend/app/models/pregunta.py` — SQLModel `Pregunta` con todos los campos de `data-model.md`: `id` (SERIAL), `tema`, `pregunta`, `imagen_archivo`, `descripcion_imagen`, `opcion_a`, `opcion_b`, `opcion_c`, `opcion_d`, `respuesta_correcta` (CHAR check A/B/C/D), `fundamento_juridico`, `activa`, `created_at`, `updated_at`
-- [ ] T019 [P] Crear `backend/app/models/config.py` — SQLModel `ConfiguracionExamen` singleton (id=1 enforced): `num_preguntas`, `segundos_por_pregunta`, `porcentaje_aprobacion` (nullable), `updated_at`, `updated_by` (FK → users)
-- [ ] T020 Crear `backend/app/models/intento.py` — SQLModel `IntentoExamen`: `id` (UUID), `estudiante_id` (FK → users), `num_preguntas` (snapshot), `porcentaje_aprobacion` (snapshot), `puntuacion`, `resultado` (enum: aprobado/reprobado), `iniciado_at`, `finalizado_at`
-- [ ] T021 Crear `backend/app/models/respuesta.py` — SQLModel `RespuestaIntento`: `id` (UUID), `intento_id` (FK → intentos_examen), `pregunta_id` (FK → preguntas), `orden`, `opcion_seleccionada` (nullable CHAR A/B/C/D), `es_correcta` (nullable bool), `tiempo_agotado` (bool default false), `respondida_at`; unique constraint en `(intento_id, pregunta_id)` y `(intento_id, orden)`
-- [ ] T022 Crear migración Alembic inicial en `backend/alembic/versions/001_initial_schema.py` — crea las 5 tablas con todos sus índices y constraints del `data-model.md`; inserta fila singleton en `configuracion_examen` con `id=1`, valores por defecto, `porcentaje_aprobacion=NULL`
-- [ ] T023 Crear `backend/app/main.py` — instancia FastAPI, configura CORS desde settings, monta `StaticFiles` en `/static`, incluye todos los routers (prefijo `/api`), registra manejador global de errores HTTP
-- [ ] T024 Crear `backend/app/services/auth_service.py` — método `login(email, password, session)`: busca usuario activo por email, verifica password, retorna access + refresh tokens; método `get_user_by_id(user_id, session)` para dependency
-- [ ] T025 Crear `backend/app/routers/auth.py` — endpoints: `POST /login`, `POST /refresh` (lee cookie httpOnly), `POST /logout` (borra cookie), `GET /me` (requiere JWT); establece/elimina cookie httpOnly para refresh token
-- [ ] T026 [P] Crear `backend/tests/conftest.py` — fixtures: `test_db` (BD PostgreSQL de test limpia por función), `client` (TestClient con `test_db`), `admin_token`, `editor_token`, `student_token` (crean usuarios de test y retornan JWT)
-- [ ] T027 [P] Crear `backend/app/core/seeder.py` — script que crea usuario admin inicial si no existe (lee credenciales desde env vars `ADMIN_EMAIL`, `ADMIN_PASSWORD`); ejecutable con `python -m app.core.seeder`
-- [ ] T028 [P] Crear `frontend/middleware/auth.ts` — Nuxt route middleware: redirige a `/login` si no hay token en el auth store; redirige a `/` si rol `estudiante` intenta acceder a `/admin`
-- [ ] T029 [P] Crear `frontend/stores/auth.ts` — Pinia store: `user`, `accessToken`; actions: `login()`, `logout()`, `refresh()`, `fetchMe()`; persiste token en cookie segura del cliente
-- [ ] T030 [P] Crear `frontend/composables/useAuth.ts` — composable que expone `login()`, `logout()`, `register()` llamando al API y actualizando el auth store
-- [ ] T031 [P] Crear `frontend/layouts/default.vue` — layout para estudiantes: navbar con logo New Drivers, enlace a historial, botón de logout
-- [ ] T032 [P] Crear `frontend/layouts/admin.vue` — layout para admin/editor: sidebar con navegación a Banco de preguntas, Estudiantes, Configuración (esta última visible solo para admin); navbar superior con logo
-- [ ] T033 [P] Crear `frontend/pages/admin/index.vue` — dashboard landing para admin/editor: contadores (total preguntas, total estudiantes, config status)
+- [x] T013 Crear `backend/app/core/settings.py` — Pydantic `Settings` leyendo todas las variables de entorno del `.env.example`
+- [x] T014 [P] Crear `backend/app/core/database.py` — SQLModel engine, `get_session` dependency, `create_db_and_tables()`
+- [x] T015 [P] Crear `backend/app/core/security.py` — `create_access_token()`, `create_refresh_token()`, `verify_token()`, `hash_password()`, `verify_password()` usando `python-jose` y `passlib`
+- [x] T016 Crear `backend/app/core/dependencies.py` — `get_current_user()` dependency (extrae JWT del header), `require_roles(roles: list[str])` factory que devuelve dependency y lanza HTTP 403 si el rol no coincide
+- [x] T017 [P] Crear `backend/app/models/user.py` — SQLModel `User` con todos los campos de `data-model.md`: `id` (UUID), `nombre_completo`, `email` (unique), `password_hash`, `rol` (enum: admin/editor/estudiante), `activo`, `created_at`, `updated_at`
+- [x] T018 [P] Crear `backend/app/models/pregunta.py` — SQLModel `Pregunta` con todos los campos de `data-model.md`: `id` (SERIAL), `tema`, `pregunta`, `imagen_archivo`, `descripcion_imagen`, `opcion_a`, `opcion_b`, `opcion_c`, `opcion_d`, `respuesta_correcta` (CHAR check A/B/C/D), `fundamento_juridico`, `activa`, `created_at`, `updated_at`
+- [x] T019 [P] Crear `backend/app/models/config.py` — SQLModel `ConfiguracionExamen` singleton (id=1 enforced): `num_preguntas`, `segundos_por_pregunta`, `porcentaje_aprobacion` (nullable), `updated_at`, `updated_by` (FK → users)
+- [x] T020 Crear `backend/app/models/intento.py` — SQLModel `IntentoExamen`: `id` (UUID), `estudiante_id` (FK → users), `num_preguntas` (snapshot), `porcentaje_aprobacion` (snapshot), `puntuacion`, `resultado` (enum: aprobado/reprobado), `iniciado_at`, `finalizado_at`
+- [x] T021 Crear `backend/app/models/respuesta.py` — SQLModel `RespuestaIntento`: `id` (UUID), `intento_id` (FK → intentos_examen), `pregunta_id` (FK → preguntas), `orden`, `opcion_seleccionada` (nullable CHAR A/B/C/D), `es_correcta` (nullable bool), `tiempo_agotado` (bool default false), `respondida_at`; unique constraint en `(intento_id, pregunta_id)` y `(intento_id, orden)`
+- [x] T022 Crear migración Alembic inicial en `backend/alembic/versions/001_initial_schema.py` — crea las 5 tablas con todos sus índices y constraints del `data-model.md`; inserta fila singleton en `configuracion_examen` con `id=1`, valores por defecto, `porcentaje_aprobacion=NULL`
+- [x] T023 Crear `backend/app/main.py` — instancia FastAPI, configura CORS desde settings, monta `StaticFiles` en `/static`, incluye todos los routers (prefijo `/api`), registra manejador global de errores HTTP
+- [x] T024 Crear `backend/app/services/auth_service.py` — método `login(email, password, session)`: busca usuario activo por email, verifica password, retorna access + refresh tokens; método `get_user_by_id(user_id, session)` para dependency
+- [x] T025 Crear `backend/app/routers/auth.py` — endpoints: `POST /login`, `POST /refresh` (lee cookie httpOnly), `POST /logout` (borra cookie), `GET /me` (requiere JWT); establece/elimina cookie httpOnly para refresh token
+- [x] T026 [P] Crear `backend/tests/conftest.py` — fixtures: `test_db` (BD PostgreSQL de test limpia por función), `client` (TestClient con `test_db`), `admin_token`, `editor_token`, `student_token` (crean usuarios de test y retornan JWT)
+- [x] T027 [P] Crear `backend/app/core/seeder.py` — script que crea usuario admin inicial si no existe (lee credenciales desde env vars `ADMIN_EMAIL`, `ADMIN_PASSWORD`); ejecutable con `python -m app.core.seeder`
+- [x] T028 [P] Crear `frontend/middleware/auth.ts` — Nuxt route middleware: redirige a `/login` si no hay token en el auth store; redirige a `/` si rol `estudiante` intenta acceder a `/admin`
+- [x] T029 [P] Crear `frontend/stores/auth.ts` — Pinia store: `user`, `accessToken`; actions: `login()`, `logout()`, `refresh()`, `fetchMe()`; persiste token en cookie segura del cliente
+- [x] T030 [P] Crear `frontend/composables/useAuth.ts` — composable que expone `login()`, `logout()`, `register()` llamando al API y actualizando el auth store
+- [x] T031 [P] Crear `frontend/layouts/default.vue` — layout para estudiantes: navbar con logo New Drivers, enlace a historial, botón de logout
+- [x] T032 [P] Crear `frontend/layouts/admin.vue` — layout para admin/editor: sidebar con navegación a Banco de preguntas, Estudiantes, Configuración (esta última visible solo para admin); navbar superior con logo
+- [x] T033 [P] Crear `frontend/pages/admin/index.vue` — dashboard landing para admin/editor: contadores (total preguntas, total estudiantes, config status)
 
 **Checkpoint**: Fundación lista — las historias de usuario pueden comenzar
 
@@ -100,33 +100,33 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US1 ⚠️ Escribir PRIMERO — verificar que fallan antes de implementar
 
-- [ ] T034 [P] [US1] Escribir test de integración `test_start_exam_success` en `backend/tests/integration/test_exams.py` — verifica: 201, `attempt_id` presente, `pregunta_actual` con 4 opciones sin `respuesta_correcta`, `segundos_por_pregunta` en respuesta
-- [ ] T035 [P] [US1] Escribir test de integración `test_start_exam_no_config` en `backend/tests/integration/test_exams.py` — verifica: 409 cuando `porcentaje_aprobacion IS NULL`
-- [ ] T036 [P] [US1] Escribir test de integración `test_answer_question_correct` y `test_answer_timeout` en `backend/tests/integration/test_exams.py` — verifica registro de respuesta correcta e incorrecta por timeout
-- [ ] T037 [P] [US1] Escribir test de integración `test_get_results_after_finish` en `backend/tests/integration/test_exams.py` — verifica: `respuesta_correcta` visible en resultados, `fundamento_juridico` presente, colores inferibles (es_correcta, tiempo_agotado)
-- [ ] T038 [P] [US1] Escribir unit test `test_fisher_yates_no_repeats` en `backend/tests/unit/test_exam_service.py` — verifica que shuffle no repite preguntas en mismo intento
-- [ ] T039 [P] [US1] Escribir unit test `test_score_calculation` en `backend/tests/unit/test_exam_service.py` — verifica cálculo de puntuación y resultado aprobado/reprobado según porcentaje
+- [x] T034 [P] [US1] Escribir test de integración `test_start_exam_success` en `backend/tests/integration/test_exams.py` — verifica: 201, `attempt_id` presente, `pregunta_actual` con 4 opciones sin `respuesta_correcta`, `segundos_por_pregunta` en respuesta
+- [x] T035 [P] [US1] Escribir test de integración `test_start_exam_no_config` en `backend/tests/integration/test_exams.py` — verifica: 409 cuando `porcentaje_aprobacion IS NULL`
+- [x] T036 [P] [US1] Escribir test de integración `test_answer_question_correct` y `test_answer_timeout` en `backend/tests/integration/test_exams.py` — verifica registro de respuesta correcta e incorrecta por timeout
+- [x] T037 [P] [US1] Escribir test de integración `test_get_results_after_finish` en `backend/tests/integration/test_exams.py` — verifica: `respuesta_correcta` visible en resultados, `fundamento_juridico` presente, colores inferibles (es_correcta, tiempo_agotado)
+- [x] T038 [P] [US1] Escribir unit test `test_fisher_yates_no_repeats` en `backend/tests/unit/test_exam_service.py` — verifica que shuffle no repite preguntas en mismo intento
+- [x] T039 [P] [US1] Escribir unit test `test_score_calculation` en `backend/tests/unit/test_exam_service.py` — verifica cálculo de puntuación y resultado aprobado/reprobado según porcentaje
 
 ### Implementación US1
 
-- [ ] T040 [US1] Crear `backend/app/services/exam_service.py` con métodos: `start_exam(student_id, session)` (valida config, Fisher-Yates shuffle, crea `intentos_examen` + N filas `respuestas_intento`), `get_exam_state(attempt_id, student_id, session)`, `submit_answer(attempt_id, orden, opcion, tiempo_agotado, session)` (valida orden, calcula `es_correcta`, retorna siguiente pregunta o señal de fin), `finish_exam(attempt_id, session)` (calcula score, resultado, establece `finalizado_at`), `get_results(attempt_id, session)` (retorna todas las respuestas con feedback + `fundamento_juridico`), `get_history(student_id, page, page_size, session)`
-- [ ] T041 [US1] Crear `backend/app/routers/exams.py` — todos los endpoints del contrato `contracts/exams-api.md`: `POST /start`, `GET /{id}`, `POST /{id}/answer`, `POST /{id}/finish`, `GET /{id}/results`, `GET /history`; aplica `require_roles(["estudiante"])` en start/answer/finish; `GET /{id}/results` permite también `admin`
-- [ ] T042 [P] [US1] Crear `frontend/composables/useTimer.ts` — composable: `startTimer(seconds, onExpire)`, `stopTimer()`, `timeLeft` (ref reactivo); usa `setInterval`; llama `onExpire()` cuando llega a 0
-- [ ] T043 [P] [US1] Crear `frontend/composables/useExam.ts` — composable: `startExam()` (llama API, guarda en store), `submitAnswer(orden, opcion, tiempoAgotado)` (llama API, avanza pregunta o navega a resultados), `loadExamState(attemptId)` (reconexión)
-- [ ] T044 [P] [US1] Crear `frontend/stores/exam.ts` — Pinia store: `attemptId`, `currentQuestion`, `totalPreguntas`, `respondidas`, `segundosPorPregunta`, `estado`; actions: `setCurrentQuestion()`, `incrementProgress()`, `reset()`
-- [ ] T045 [P] [US1] Crear `frontend/components/exam/TimerBar.vue` — barra de progreso visual del timer: prop `seconds` (total), prop `timeLeft` (actual); color verde → amarillo → rojo según % restante; emite `expire` cuando llega a 0
-- [ ] T046 [P] [US1] Crear `frontend/components/exam/ProgressBar.vue` — barra de progreso del examen: prop `current` (pregunta actual), prop `total` (total preguntas); muestra "Pregunta N de M"
-- [ ] T047 [P] [US1] Crear `frontend/components/exam/AnswerOption.vue` — opción de respuesta seleccionable: props `letra` (A/B/C/D), `texto`, `seleccionada` (bool), `deshabilitada` (bool); emite `select` al hacer click; estilo destacado en azul cuando seleccionada
-- [ ] T048 [US1] Crear `frontend/components/exam/QuestionCard.vue` — card de pregunta completa: props `pregunta` (objeto), `orden`, `total`; muestra imagen de apoyo si `imagen_archivo` existe (usando `/static/` como base URL); renderiza 4 `AnswerOption`; integra `TimerBar` y `ProgressBar`; emite `answer(opcion)` y maneja `timerExpire` enviando respuesta vacía
-- [ ] T049 [US1] Crear `frontend/pages/exam/[id].vue` — página de examen activo: carga estado del examen al montar (usa `useExam.loadExamState`), inicia timer por pregunta, renderiza `QuestionCard`, maneja avance automático al expirar timer, navega a `/exam/[id]/results` al finalizar; redirige a `/` si intento ya finalizado
-- [ ] T050 [P] [US1] Crear `frontend/components/results/ScoreCard.vue` — card de resultado final: props `puntuacion`, `totalPreguntas`, `resultado` (aprobado/reprobado); muestra "X de N correctas", texto y emoji de aprobado/reprobado; botón "Intentar de nuevo" que navega a `/`
-- [ ] T051 [P] [US1] Crear `frontend/components/results/LegalBasisBlock.vue` — bloque de fundamento legal: prop `texto`; renderizado en sección colapsable bajo cada pregunta revisada
-- [ ] T052 [P] [US1] Crear `frontend/components/results/QuestionReview.vue` — revisión de una pregunta: props `pregunta` (objeto con todas las opciones, respuesta correcta, es_correcta, tiempo_agotado, opcion_seleccionada); muestra opción correcta en verde, opción seleccionada incorrecta en rojo, preguntas sin respuesta (tiempo agotado) con indicador gris + respuesta correcta destacada; incluye `LegalBasisBlock`
-- [ ] T053 [US1] Crear `frontend/pages/exam/[id]/results.vue` — página de resultados: carga `GET /api/exams/{id}/results`, renderiza `ScoreCard` en cabecera, lista todas las preguntas con `QuestionReview`; solo accesible si `finalizado_at IS NOT NULL`
-- [ ] T054 [US1] Crear `frontend/pages/index.vue` — dashboard del estudiante: muestra botón "Iniciar Examen" (llama `POST /api/exams/start` y navega a `/exam/{id}`); muestra aviso si el sistema no está configurado (porcentaje_aprobacion = null); muestra últimos 3 intentos del historial
-- [ ] T055 [P] [US1] Escribir Vitest test para `TimerBar.vue` en `frontend/tests/components/exam/TimerBar.test.ts` — verifica: renderiza timeLeft, aplica clase de color correcto, emite `expire` al llegar a 0
-- [ ] T056 [P] [US1] Escribir Vitest test para `AnswerOption.vue` en `frontend/tests/components/exam/AnswerOption.test.ts` — verifica: emite `select` al click, aplica estilo cuando `seleccionada=true`, no emite cuando `deshabilitada=true`
-- [ ] T057 [P] [US1] Escribir Vitest test para `useTimer.ts` en `frontend/tests/composables/useTimer.test.ts` — verifica: `timeLeft` decrementa por segundo, `onExpire` se llama al llegar a 0, `stopTimer` detiene el countdown
+- [x] T040 [US1] Crear `backend/app/services/exam_service.py` con métodos: `start_exam(student_id, session)` (valida config, Fisher-Yates shuffle, crea `intentos_examen` + N filas `respuestas_intento`), `get_exam_state(attempt_id, student_id, session)`, `submit_answer(attempt_id, orden, opcion, tiempo_agotado, session)` (valida orden, calcula `es_correcta`, retorna siguiente pregunta o señal de fin), `finish_exam(attempt_id, session)` (calcula score, resultado, establece `finalizado_at`), `get_results(attempt_id, session)` (retorna todas las respuestas con feedback + `fundamento_juridico`), `get_history(student_id, page, page_size, session)`
+- [x] T041 [US1] Crear `backend/app/routers/exams.py` — todos los endpoints del contrato `contracts/exams-api.md`: `POST /start`, `GET /{id}`, `POST /{id}/answer`, `POST /{id}/finish`, `GET /{id}/results`, `GET /history`; aplica `require_roles(["estudiante"])` en start/answer/finish; `GET /{id}/results` permite también `admin`
+- [x] T042 [P] [US1] Crear `frontend/composables/useTimer.ts` — composable: `startTimer(seconds, onExpire)`, `stopTimer()`, `timeLeft` (ref reactivo); usa `setInterval`; llama `onExpire()` cuando llega a 0
+- [x] T043 [P] [US1] Crear `frontend/composables/useExam.ts` — composable: `startExam()` (llama API, guarda en store), `submitAnswer(orden, opcion, tiempoAgotado)` (llama API, avanza pregunta o navega a resultados), `loadExamState(attemptId)` (reconexión)
+- [x] T044 [P] [US1] Crear `frontend/stores/exam.ts` — Pinia store: `attemptId`, `currentQuestion`, `totalPreguntas`, `respondidas`, `segundosPorPregunta`, `estado`; actions: `setCurrentQuestion()`, `incrementProgress()`, `reset()`
+- [x] T045 [P] [US1] Crear `frontend/components/exam/TimerBar.vue` — barra de progreso visual del timer: prop `seconds` (total), prop `timeLeft` (actual); color verde → amarillo → rojo según % restante; emite `expire` cuando llega a 0
+- [x] T046 [P] [US1] Crear `frontend/components/exam/ProgressBar.vue` — barra de progreso del examen: prop `current` (pregunta actual), prop `total` (total preguntas); muestra "Pregunta N de M"
+- [x] T047 [P] [US1] Crear `frontend/components/exam/AnswerOption.vue` — opción de respuesta seleccionable: props `letra` (A/B/C/D), `texto`, `seleccionada` (bool), `deshabilitada` (bool); emite `select` al hacer click; estilo destacado en azul cuando seleccionada
+- [x] T048 [US1] Crear `frontend/components/exam/QuestionCard.vue` — card de pregunta completa: props `pregunta` (objeto), `orden`, `total`; muestra imagen de apoyo si `imagen_archivo` existe (usando `/static/` como base URL); renderiza 4 `AnswerOption`; integra `TimerBar` y `ProgressBar`; emite `answer(opcion)` y maneja `timerExpire` enviando respuesta vacía
+- [x] T049 [US1] Crear `frontend/pages/exam/[id].vue` — página de examen activo: carga estado del examen al montar (usa `useExam.loadExamState`), inicia timer por pregunta, renderiza `QuestionCard`, maneja avance automático al expirar timer, navega a `/exam/[id]/results` al finalizar; redirige a `/` si intento ya finalizado
+- [x] T050 [P] [US1] Crear `frontend/components/results/ScoreCard.vue` — card de resultado final: props `puntuacion`, `totalPreguntas`, `resultado` (aprobado/reprobado); muestra "X de N correctas", texto y emoji de aprobado/reprobado; botón "Intentar de nuevo" que navega a `/`
+- [x] T051 [P] [US1] Crear `frontend/components/results/LegalBasisBlock.vue` — bloque de fundamento legal: prop `texto`; renderizado en sección colapsable bajo cada pregunta revisada
+- [x] T052 [P] [US1] Crear `frontend/components/results/QuestionReview.vue` — revisión de una pregunta: props `pregunta` (objeto con todas las opciones, respuesta correcta, es_correcta, tiempo_agotado, opcion_seleccionada); muestra opción correcta en verde, opción seleccionada incorrecta en rojo, preguntas sin respuesta (tiempo agotado) con indicador gris + respuesta correcta destacada; incluye `LegalBasisBlock`
+- [x] T053 [US1] Crear `frontend/pages/exam/[id]/results.vue` — página de resultados: carga `GET /api/exams/{id}/results`, renderiza `ScoreCard` en cabecera, lista todas las preguntas con `QuestionReview`; solo accesible si `finalizado_at IS NOT NULL`
+- [x] T054 [US1] Crear `frontend/pages/index.vue` — dashboard del estudiante: muestra botón "Iniciar Examen" (llama `POST /api/exams/start` y navega a `/exam/{id}`); muestra aviso si el sistema no está configurado (porcentaje_aprobacion = null); muestra últimos 3 intentos del historial
+- [x] T055 [P] [US1] Escribir Vitest test para `TimerBar.vue` en `frontend/tests/components/exam/TimerBar.test.ts` — verifica: renderiza timeLeft, aplica clase de color correcto, emite `expire` al llegar a 0
+- [x] T056 [P] [US1] Escribir Vitest test para `AnswerOption.vue` en `frontend/tests/components/exam/AnswerOption.test.ts` — verifica: emite `select` al click, aplica estilo cuando `seleccionada=true`, no emite cuando `deshabilitada=true`
+- [x] T057 [P] [US1] Escribir Vitest test para `useTimer.ts` en `frontend/tests/composables/useTimer.test.ts` — verifica: `timeLeft` decrementa por segundo, `onExpire` se llama al llegar a 0, `stopTimer` detiene el countdown
 
 **Checkpoint**: US1 lista — estudiante puede tomar examen completo e ver resultados con retroalimentación
 
