@@ -70,6 +70,28 @@ export const useAuth = () => {
     }
   }
 
+  const register = async (nombre_completo: string, email: string, password: string) => {
+    auth.isLoading = true
+    try {
+      await $fetch(`${apiBase}/api/auth/register`, {
+        method: 'POST',
+        body: { nombre_completo, email, password },
+      })
+      return { success: true }
+    } catch (error: unknown) {
+      let errorMessage = 'Error al registrar cuenta'
+      if (error && typeof error === 'object') {
+        const err = error as Record<string, unknown>
+        const data = err.data as Record<string, unknown> | undefined
+        if (typeof data?.detail === 'string') errorMessage = data.detail
+        else if (typeof err.message === 'string') errorMessage = err.message
+      }
+      return { success: false, error: errorMessage }
+    } finally {
+      auth.isLoading = false
+    }
+  }
+
   const fetchMe = async (): Promise<boolean> => {
     if (!auth.accessToken) return false
     try {
@@ -93,6 +115,7 @@ export const useAuth = () => {
   return {
     login,
     logout,
+    register,
     refreshToken,
     fetchMe,
     isAuthenticated: computed(() => auth.isAuthenticated),
