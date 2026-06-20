@@ -1,4 +1,4 @@
-"""Integration tests for /api/admin config endpoints (T077–T079)."""
+"""Integration tests for /api/admin config endpoints (T077–T079) and student management (T084–T086)."""
 
 import uuid
 
@@ -6,7 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
-from app.models import ConfiguracionExamen, Pregunta
+from app.core.security import hash_password
+from app.models import ConfiguracionExamen, Pregunta, User
 from app.models.intento import IntentoExamen
 
 
@@ -247,3 +248,227 @@ class TestConfigSnapshotIsolation:
         assert intento_after.num_preguntas == 3
         assert intento_after.segundos_por_pregunta == 45
         assert intento_after.porcentaje_aprobacion == 60.0
+
+
+# ---------------------------------------------------------------------------
+# Helpers for student tests
+# ---------------------------------------------------------------------------
+
+def _seed_student(
+    session: Session,
+    nombre_completo: str,
+    email: str,
+    password: str = "Test1234!",
+    activo: bool = True,
+) -> User:
+    """Insert a student User row and return it."""
+    user = User(
+        nombre_completo=nombre_completo,
+        email=email,
+        password_hash=hash_password(password),
+        rol="estudiante",
+        activo=activo,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+# ---------------------------------------------------------------------------
+# T084 — GET /api/admin/students
+# ---------------------------------------------------------------------------
+
+class TestListStudents:
+    """T084: GET /api/admin/students listing, pagination, and filtering."""
+
+    def test_admin_can_list_students(self, client: TestClient, admin_token: str):
+        """200 for admin token."""
+        response = client.get(
+            "/api/admin/students",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert "items" in body
+        assert "total" in body
+
+    def test_editor_can_list_students(self, client: TestClient, editor_token: str):
+        """200 for editor token."""
+        response = client.get(
+            "/api/admin/students",
+            headers={"Authorization": f"Bearer {editor_token}"},
+        )
+        assert response.status_code == 200
+
+    def test_pagination_page_size(
+        self, client: TestClient, session: Session, admin_token: str
+    ):
+        """Create 3 students, page_size=2 returns 2 items but total=3."""
+        _seed_student(session, "Ana García", "ana@test.com")
+        _seed_student(session, "Carlos López", "carlos@test.com")
+        _seed_student(session, "Diana Martínez", "diana@test.com")
+
+        response = client.get(
+            "/api/admin/students?page=1&page_size=2",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body["items"]) == 2
+        assert body["total"] == 3
+
+    def test_filter_by_name(
+        self, client: TestClient, session: Session, admin_token: str
+    ):
+        """?q=Juan returns only students whose name matches."""
+        _seed_student(session, "Juan Pérez", "juan@test.com")
+        _seed_student(session, "María Torres", "maria@test.com")
+
+        response = client.get(
+            "/api/admin/students?q=Juan",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["total"] == 1
+        assert body["items"][0]["nombre_completo"] == "Juan Pérez"
+
+
+# ---------------------------------------------------------------------------
+# T085 — POST /api/admin/students
+# ---------------------------------------------------------------------------
+
+class TestCreateStudentByEditor:
+    """T085: Editor creates a student and new student can authenticate."""
+
+    def test_editor_creates_student_returns_201(
+        self, client: TestClient, editor_token: str
+    ):
+        """201 when editor creates a student."""
+        response = client.post(
+            "/api/admin/students",
+            json={
+                "nombre_completo": "Nuevo Estudiante",
+                "email": "nuevo@test.com",
+                "password": "Nuevo1234!",
+            },
+            headers={"Authorization": f"Bearer {editor_token}"},
+        )
+        assert response.status_code == 201
+        body = response.json()
+        assert body["email"] == "nuevo@test.com"
+        assert body["rol"] == "estudiante"
+        assert "password_hash" not in body
+
+    def test_new_student_can_login(
+        self, client: TestClient, editor_token: str
+    ):
+        """New student created by editor can authenticate via /api/auth/login."""
+        # Create the student
+        create_resp = client.post(
+            "/api/admin/students",
+            json={
+                "nombre_completo": "Login Test",
+                "email": "logintest@test.com",
+                "password": "Login1234!",
+            },
+            headers={"Authorization": f"Bearer {editor_token}"},
+        )
+        assert create_resp.status_code == 201
+
+        # New student should be able to log in
+        login_resp = client.post(
+            "/api/auth/login",
+            json={"email": "logintest@test.com", "password": "Login1234!"},
+        )
+        assert login_resp.status_code == 200
+        assert "access_token" in login_resp.json()
+
+    def test_duplicate_email_returns_409(
+        self, client: TestClient, session: Session, editor_token: str
+    ):
+        """409 when creating a student with an existing email."""
+        _seed_student(session, "Existing", "existing@test.com")
+
+        response = client.post(
+            "/api/admin/students",
+            json={
+                "nombre_completo": "Duplicate",
+                "email": "existing@test.com",
+                "password": "Test1234!",
+            },
+            headers={"Authorization": f"Bearer {editor_token}"},
+        )
+        assert response.status_code == 409
+
+
+# ---------------------------------------------------------------------------
+# T086 — PATCH /api/admin/students/{id}/status
+# ---------------------------------------------------------------------------
+
+class TestToggleStudentStatus:
+    """T086: Admin deactivates a student; deactivated student cannot log in."""
+
+    def test_admin_deactivates_student(
+        self, client: TestClient, session: Session, admin_token: str
+    ):
+        """200 when admin deactivates a student."""
+        student = _seed_student(session, "Activo Estudiante", "activo@test.com")
+
+        response = client.patch(
+            f"/api/admin/students/{student.id}/status",
+            json={"activo": False},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 200
+        assert response.json()["activo"] is False
+
+    def test_deactivated_student_cannot_login(
+        self, client: TestClient, session: Session, admin_token: str
+    ):
+        """Deactivated student receives 403 on login attempt."""
+        password = "Temp1234!"
+        student = _seed_student(
+            session, "Inactive Student", "inactive@test.com", password=password
+        )
+
+        # Deactivate
+        patch_resp = client.patch(
+            f"/api/admin/students/{student.id}/status",
+            json={"activo": False},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert patch_resp.status_code == 200
+
+        # Login attempt should return 403
+        login_resp = client.post(
+            "/api/auth/login",
+            json={"email": "inactive@test.com", "password": password},
+        )
+        assert login_resp.status_code == 403
+
+    def test_editor_cannot_toggle_status(
+        self, client: TestClient, session: Session, editor_token: str
+    ):
+        """403 when editor tries to toggle student status."""
+        student = _seed_student(session, "Some Student", "some@test.com")
+
+        response = client.patch(
+            f"/api/admin/students/{student.id}/status",
+            json={"activo": False},
+            headers={"Authorization": f"Bearer {editor_token}"},
+        )
+        assert response.status_code == 403
+
+    def test_toggle_nonexistent_student_returns_404(
+        self, client: TestClient, admin_token: str
+    ):
+        """404 when toggling status of a non-existent student."""
+        fake_id = uuid.uuid4()
+        response = client.patch(
+            f"/api/admin/students/{fake_id}/status",
+            json={"activo": False},
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert response.status_code == 404
