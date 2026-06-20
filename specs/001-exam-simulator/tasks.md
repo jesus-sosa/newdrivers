@@ -145,10 +145,10 @@ frontend/tests/            # Pruebas Vitest
 
 ### Implementación US2
 
-- [ ] T060 [P] [US2] Agregar método `register(nombre, email, password, session)` a `backend/app/services/auth_service.py` — verifica unicidad de email (409 si duplicado), hashea password con bcrypt, crea usuario con `rol=estudiante`
-- [ ] T061 [US2] Agregar endpoint `POST /register` al router en `backend/app/routers/auth.py` — público (sin JWT); llama `auth_service.register()`; retorna 201 con datos del usuario (sin password_hash)
-- [ ] T062 [P] [US2] Crear `frontend/pages/login.vue` — formulario email + contraseña; llama `useAuth().login()`; redirige a `/` si es estudiante o a `/admin` si es admin/editor; muestra link a `/register`
-- [ ] T063 [US2] Crear `frontend/pages/register.vue` — formulario nombre + email + contraseña; llama `useAuth().register()`; redirige a `/login` tras éxito; muestra link a `/login`
+- [x] T060 [P] [US2] Agregar método `register(nombre, email, password, session)` a `backend/app/services/auth_service.py` — verifica unicidad de email (409 si duplicado), hashea password con bcrypt, crea usuario con `rol=estudiante`
+- [x] T061 [US2] Agregar endpoint `POST /register` al router en `backend/app/routers/auth.py` — público (sin JWT); llama `auth_service.register()`; retorna 201 con datos del usuario (sin password_hash)
+- [x] T062 [P] [US2] Crear `frontend/pages/login.vue` — formulario email + contraseña; llama `useAuth().login()`; redirige a `/` si es estudiante o a `/admin` si es admin/editor; muestra link a `/register`
+- [x] T063 [US2] Crear `frontend/pages/register.vue` — formulario nombre + email + contraseña; llama `useAuth().register()`; redirige a `/login` tras éxito; muestra link a `/login`
 - [ ] T064 [P] [US2] Escribir Vitest test para validación de formulario en `frontend/tests/pages/login.test.ts` — verifica: error visible si email vacío, error si contraseña < 8 chars, no llama API con datos inválidos
 
 **Checkpoint**: US2 lista — estudiante puede registrarse de forma autónoma e inmediatamente tomar examen

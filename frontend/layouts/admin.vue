@@ -10,7 +10,7 @@
         <NuxtLink to="/admin" class="nav-link" exact-active-class="nav-link--active">
           Dashboard
         </NuxtLink>
-        <NuxtLink to="/admin/preguntas" class="nav-link" active-class="nav-link--active">
+        <NuxtLink to="/admin/questions" class="nav-link" active-class="nav-link--active">
           Preguntas
         </NuxtLink>
         <NuxtLink to="/admin/configuracion" class="nav-link" active-class="nav-link--active">

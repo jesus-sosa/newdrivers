@@ -1,11 +1,17 @@
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.core.settings import settings
+from app.core.settings import settings, setup_logging
+
+setup_logging(settings.debug)
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -21,6 +27,32 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Exception handlers registered before routers so the middleware stack sees them first
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Error interno del servidor"},
+    )
+
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -33,23 +65,17 @@ app.add_middleware(
 # Archivos estáticos (imágenes de señales de tránsito)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Routers (se agregarán conforme se implementen)
+# Routers
 from app.routers import auth
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 from app.routers import exams
 app.include_router(exams.router, prefix="/api/exams", tags=["exams"])
-# app.include_router(questions.router, prefix="/api/questions", tags=["questions"])
-# app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+from app.routers import questions as questions_router
+app.include_router(questions_router.router, prefix="/api/questions", tags=["questions"])
+from app.routers import admin as admin_router
+app.include_router(admin_router.router, prefix="/api/admin", tags=["admin"])
 
 
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "newdrivers-exams-backend"}
-
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Error interno del servidor"},
-    )

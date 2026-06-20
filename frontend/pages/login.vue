@@ -27,6 +27,7 @@
             type="password"
             placeholder="••••••••"
             required
+            minlength="8"
             autocomplete="current-password"
           />
         </div>
@@ -66,6 +67,14 @@ onMounted(async () => {
 
 const handleLogin = async () => {
   error.value = ''
+  if (!form.email) {
+    error.value = 'El correo es obligatorio'
+    return
+  }
+  if (form.password.length < 8) {
+    error.value = 'La contraseña debe tener al menos 8 caracteres'
+    return
+  }
   const result = await login(form.email, form.password)
   if (result.success) {
     navigateTo(auth.isAdmin || auth.isEditor ? '/admin' : '/dashboard')

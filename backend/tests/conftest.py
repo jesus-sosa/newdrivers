@@ -12,6 +12,7 @@ from app.models import User, Pregunta, ConfiguracionExamen, IntentoExamen, Respu
 TEST_DATABASE_URL = "sqlite://"  # in-memory
 
 _ADMIN_PASSWORD = "Admin1234!"
+_EDITOR_PASSWORD = "Editor1234!"
 _STUDENT_PASSWORD = "Student1234!"
 
 
@@ -90,6 +91,31 @@ def estudiante_token_fixture(client, estudiante_user):
     response = client.post(
         "/api/auth/login",
         json={"email": "estudiante@test.com", "password": _STUDENT_PASSWORD},
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]
+
+
+@pytest.fixture(name="editor_user")
+def editor_user_fixture(session):
+    user = User(
+        nombre_completo="Editor Test",
+        email="editor@test.com",
+        password_hash=hash_password(_EDITOR_PASSWORD),
+        rol="editor",
+        activo=True,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@pytest.fixture(name="editor_token")
+def editor_token_fixture(client, editor_user):
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "editor@test.com", "password": _EDITOR_PASSWORD},
     )
     assert response.status_code == 200
     return response.json()["access_token"]
