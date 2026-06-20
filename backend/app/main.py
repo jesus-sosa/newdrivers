@@ -40,7 +40,8 @@ from app.routers import exams
 app.include_router(exams.router, prefix="/api/exams", tags=["exams"])
 from app.routers import questions as questions_router
 app.include_router(questions_router.router, prefix="/api/questions", tags=["questions"])
-# app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+from app.routers import admin as admin_router
+app.include_router(admin_router.router, prefix="/api/admin", tags=["admin"])
 
 
 @app.get("/health")
