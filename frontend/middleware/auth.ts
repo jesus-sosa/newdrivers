@@ -8,8 +8,8 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo('/login')
   }
 
-  // Rutas solo para admin
-  if (to.path.startsWith('/admin') && auth.user?.rol !== 'admin') {
+  // Rutas solo para admin y editor
+  if (to.path.startsWith('/admin') && !auth.isAdmin && !auth.isEditor) {
     return navigateTo('/dashboard')
   }
 })
