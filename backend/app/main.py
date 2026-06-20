@@ -38,7 +38,8 @@ from app.routers import auth
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 from app.routers import exams
 app.include_router(exams.router, prefix="/api/exams", tags=["exams"])
-# app.include_router(questions.router, prefix="/api/questions", tags=["questions"])
+from app.routers import questions as questions_router
+app.include_router(questions_router.router, prefix="/api/questions", tags=["questions"])
 # app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 
