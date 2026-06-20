@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app.models import ConfiguracionExamen, Pregunta
+from app.core.security import hash_password
+from app.models.user import User
 
 
 def create_exam_config(session: Session, num_preguntas: int = 5, porcentaje: float = 70.0) -> ConfiguracionExamen:
@@ -245,3 +247,108 @@ class TestGetResults:
         assert "tiempo_agotado" in primera
         # fundamento_juridico puede ser None si no fue configurado, pero el campo debe existir
         assert "fundamento_juridico" in primera
+
+
+class TestHistoryIsolation:
+    def test_history_only_own_attempts(
+        self,
+        client: TestClient,
+        session: Session,
+        estudiante_token: str,
+    ):
+        """GET /api/exams/history sólo devuelve intentos del estudiante autenticado."""
+        # Setup: configurar examen con 3 preguntas
+        create_exam_config(session, num_preguntas=3)
+        create_preguntas(session, count=5)
+
+        # Student A completa 1 examen
+        start_resp = client.post(
+            "/api/exams/start",
+            headers={"Authorization": f"Bearer {estudiante_token}"},
+        )
+        assert start_resp.status_code == 201
+        attempt_id_a = start_resp.json()["attempt_id"]
+
+        for orden in range(1, 4):
+            resp = client.post(
+                f"/api/exams/{attempt_id_a}/answer",
+                headers={"Authorization": f"Bearer {estudiante_token}"},
+                json={"orden": orden, "opcion_seleccionada": "A", "tiempo_agotado": False},
+            )
+            assert resp.status_code == 200
+
+        # Crear student B directamente en BD
+        user_b = User(
+            nombre_completo="Student B",
+            email="studentb@test.com",
+            password_hash=hash_password("StudentB123!"),
+            rol="estudiante",
+            activo=True,
+        )
+        session.add(user_b)
+        session.commit()
+
+        # Obtener token de student B
+        login_resp = client.post(
+            "/api/auth/login",
+            json={"email": "studentb@test.com", "password": "StudentB123!"},
+        )
+        assert login_resp.status_code == 200
+        token_b = login_resp.json()["access_token"]
+
+        # Student B completa 1 examen
+        start_resp_b = client.post(
+            "/api/exams/start",
+            headers={"Authorization": f"Bearer {token_b}"},
+        )
+        assert start_resp_b.status_code == 201
+        attempt_id_b = start_resp_b.json()["attempt_id"]
+
+        for orden in range(1, 4):
+            resp = client.post(
+                f"/api/exams/{attempt_id_b}/answer",
+                headers={"Authorization": f"Bearer {token_b}"},
+                json={"orden": orden, "opcion_seleccionada": "A", "tiempo_agotado": False},
+            )
+            assert resp.status_code == 200
+
+        # Student A consulta su historial
+        history_resp = client.get(
+            "/api/exams/history",
+            headers={"Authorization": f"Bearer {estudiante_token}"},
+        )
+
+        assert history_resp.status_code == 200
+        data = history_resp.json()
+        assert data["total"] == 1
+        assert len(data["items"]) == 1
+        assert data["items"][0]["attempt_id"] == attempt_id_a
+
+
+class TestResultsAccess:
+    def test_results_not_available_during_exam(
+        self,
+        client: TestClient,
+        session: Session,
+        estudiante_token: str,
+    ):
+        """GET /api/exams/{attempt_id}/results devuelve 409 si el intento no está finalizado."""
+        # Setup
+        create_exam_config(session, num_preguntas=3)
+        create_preguntas(session, count=5)
+
+        # Iniciar examen sin responder ninguna pregunta
+        start_resp = client.post(
+            "/api/exams/start",
+            headers={"Authorization": f"Bearer {estudiante_token}"},
+        )
+        assert start_resp.status_code == 201
+        attempt_id = start_resp.json()["attempt_id"]
+
+        # Intentar obtener resultados inmediatamente (examen en curso)
+        results_resp = client.get(
+            f"/api/exams/{attempt_id}/results",
+            headers={"Authorization": f"Bearer {estudiante_token}"},
+        )
+
+        assert results_resp.status_code == 409
