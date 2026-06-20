@@ -16,7 +16,7 @@
 
     <!-- Import form -->
     <div v-if="showImport" class="import-section">
-      <ImportForm />
+      <AdminImportForm />
     </div>
 
     <!-- Filters -->

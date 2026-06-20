@@ -35,7 +35,7 @@
 
     <!-- Student table -->
     <div class="students-page__card">
-      <StudentList
+      <AdminStudentList
         :students="students"
         :is-loading="isLoading"
       />

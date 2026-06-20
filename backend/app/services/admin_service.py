@@ -103,6 +103,42 @@ def update_config(data: dict, updated_by_id: UUID, session: Session) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Dashboard stats
+# ---------------------------------------------------------------------------
+
+def get_stats(session: Session) -> dict:
+    """Return KPI counts for the admin dashboard."""
+    preguntas_activas = session.exec(
+        select(func.count()).where(Pregunta.activa == True)  # noqa: E712
+    ).one()
+
+    total_estudiantes = session.exec(
+        select(func.count())
+        .where(User.rol == "estudiante")
+        .where(User.activo == True)  # noqa: E712
+    ).one()
+
+    total_examenes = session.exec(
+        select(func.count()).where(IntentoExamen.finalizado_at.is_not(None))  # type: ignore[union-attr]
+    ).one()
+
+    aprobados = session.exec(
+        select(func.count())
+        .where(IntentoExamen.resultado == "aprobado")
+        .where(IntentoExamen.finalizado_at.is_not(None))  # type: ignore[union-attr]
+    ).one()
+
+    tasa_aprobacion = round(aprobados / total_examenes * 100, 1) if total_examenes > 0 else None
+
+    return {
+        "preguntas_activas": preguntas_activas,
+        "total_estudiantes": total_estudiantes,
+        "total_examenes": total_examenes,
+        "tasa_aprobacion": tasa_aprobacion,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Student management (T087)
 # ---------------------------------------------------------------------------
 

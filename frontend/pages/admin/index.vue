@@ -5,15 +5,15 @@
         <div class="stat-icon stat-icon--blue">📋</div>
         <div class="stat-content">
           <p class="stat-label">Preguntas activas</p>
-          <p class="stat-value">—</p>
+          <p class="stat-value">{{ stats ? stats.preguntas_activas : '—' }}</p>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon stat-icon--green">👥</div>
         <div class="stat-content">
-          <p class="stat-label">Estudiantes</p>
-          <p class="stat-value">—</p>
+          <p class="stat-label">Estudiantes activos</p>
+          <p class="stat-value">{{ stats ? stats.total_estudiantes : '—' }}</p>
         </div>
       </div>
 
@@ -21,7 +21,7 @@
         <div class="stat-icon stat-icon--purple">📝</div>
         <div class="stat-content">
           <p class="stat-label">Exámenes realizados</p>
-          <p class="stat-value">—</p>
+          <p class="stat-value">{{ stats ? stats.total_examenes : '—' }}</p>
         </div>
       </div>
 
@@ -29,7 +29,9 @@
         <div class="stat-icon stat-icon--orange">✅</div>
         <div class="stat-content">
           <p class="stat-label">Tasa de aprobación</p>
-          <p class="stat-value">—</p>
+          <p class="stat-value">
+            {{ stats ? (stats.tasa_aprobacion !== null ? stats.tasa_aprobacion + '%' : 'N/A') : '—' }}
+          </p>
         </div>
       </div>
     </div>
@@ -45,6 +47,28 @@
 definePageMeta({
   layout: 'admin',
   middleware: ['auth'],
+})
+
+interface DashboardStats {
+  preguntas_activas: number
+  total_estudiantes: number
+  total_examenes: number
+  tasa_aprobacion: number | null
+}
+
+const auth = useAuthStore()
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase
+
+const stats = ref<DashboardStats | null>(null)
+
+onMounted(async () => {
+  try {
+    const headers = auth.accessToken ? { Authorization: `Bearer ${auth.accessToken}` } : {}
+    stats.value = await $fetch<DashboardStats>(`${apiBase}/api/admin/stats`, { headers })
+  } catch {
+    // Stats are non-critical; dashboard still renders with '—' fallback
+  }
 })
 </script>
 

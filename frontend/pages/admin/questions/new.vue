@@ -8,7 +8,7 @@
     <div class="form-card">
       <p v-if="submitError" class="submit-error">{{ submitError }}</p>
 
-      <QuestionForm
+      <AdminQuestionForm
         :is-loading="isLoading"
         @submit="handleSubmit"
         @cancel="navigateTo('/admin/questions')"

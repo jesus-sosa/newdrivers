@@ -38,7 +38,7 @@
 
     <!-- Config form -->
     <div v-else-if="config" class="form-card">
-      <ConfigForm
+      <AdminConfigForm
         :initial-data="config"
         :estado-sistema="config.estado_sistema"
         :is-loading="isSaving"

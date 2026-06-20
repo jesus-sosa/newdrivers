@@ -8,7 +8,7 @@
       <ResultsScoreCard :resumen="results" />
 
       <div class="results-actions">
-        <NuxtLink to="/dashboard" class="btn-primary">
+        <NuxtLink :to="backLink" class="btn-primary">
           Volver al dashboard
         </NuxtLink>
       </div>
@@ -25,7 +25,7 @@
 
     <div v-else class="results-error">
       <p>No se pudieron cargar los resultados.</p>
-      <NuxtLink to="/dashboard">Volver al dashboard</NuxtLink>
+      <NuxtLink :to="backLink">Volver al dashboard</NuxtLink>
     </div>
   </div>
 </template>
@@ -38,8 +38,10 @@ definePageMeta({
 
 const route = useRoute()
 const { fetchResults } = useExam()
+const auth = useAuthStore()
 
 const attemptId = route.params.id as string
+const backLink = computed(() => auth.user?.rol === 'admin' || auth.user?.rol === 'editor' ? '/admin' : '/dashboard')
 
 const isLoading = ref(true)
 const results = ref<Awaited<ReturnType<typeof fetchResults>>>(null)

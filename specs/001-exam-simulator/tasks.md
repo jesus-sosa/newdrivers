@@ -140,8 +140,8 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US2 ⚠️ Escribir PRIMERO
 
-- [ ] T058 [P] [US2] Escribir test de integración `test_register_success` en `backend/tests/integration/test_auth.py` — verifica: 201, `rol="estudiante"`, contraseña no devuelta en respuesta
-- [ ] T059 [P] [US2] Escribir test de integración `test_register_duplicate_email` en `backend/tests/integration/test_auth.py` — verifica: 409 al registrar email ya existente
+- [x] T058 [P] [US2] Escribir test de integración `test_register_success` en `backend/tests/integration/test_auth.py` — verifica: 201, `rol="estudiante"`, contraseña no devuelta en respuesta
+- [x] T059 [P] [US2] Escribir test de integración `test_register_duplicate_email` en `backend/tests/integration/test_auth.py` — verifica: 409 al registrar email ya existente
 
 ### Implementación US2
 
@@ -149,7 +149,7 @@ frontend/tests/            # Pruebas Vitest
 - [x] T061 [US2] Agregar endpoint `POST /register` al router en `backend/app/routers/auth.py` — público (sin JWT); llama `auth_service.register()`; retorna 201 con datos del usuario (sin password_hash)
 - [x] T062 [P] [US2] Crear `frontend/pages/login.vue` — formulario email + contraseña; llama `useAuth().login()`; redirige a `/` si es estudiante o a `/admin` si es admin/editor; muestra link a `/register`
 - [x] T063 [US2] Crear `frontend/pages/register.vue` — formulario nombre + email + contraseña; llama `useAuth().register()`; redirige a `/login` tras éxito; muestra link a `/login`
-- [ ] T064 [P] [US2] Escribir Vitest test para validación de formulario en `frontend/tests/pages/login.test.ts` — verifica: error visible si email vacío, error si contraseña < 8 chars, no llama API con datos inválidos
+- [x] T064 [P] [US2] Escribir Vitest test para validación de formulario en `frontend/tests/pages/login.test.ts` — verifica: error visible si email vacío, error si contraseña < 8 chars, no llama API con datos inválidos
 
 **Checkpoint**: US2 lista — estudiante puede registrarse de forma autónoma e inmediatamente tomar examen
 
@@ -163,21 +163,21 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US3 ⚠️ Escribir PRIMERO
 
-- [ ] T065 [P] [US3] Escribir test de integración `test_list_questions_with_filters` en `backend/tests/integration/test_questions.py` — verifica paginación, filtro por `tema`, filtro por `activa`
-- [ ] T066 [P] [US3] Escribir test de integración `test_create_question_validation` en `backend/tests/integration/test_questions.py` — verifica: 201 con datos válidos, 400 si `respuesta_correcta` no es A/B/C/D
-- [ ] T067 [P] [US3] Escribir test de integración `test_soft_delete_question` en `backend/tests/integration/test_questions.py` — verifica: 204, pregunta no aparece en `GET ?activa=true`, pero sí en `GET ?activa=false`
-- [ ] T068 [P] [US3] Escribir test de integración `test_import_csv` en `backend/tests/integration/test_questions.py` — verifica: upload de CSV de muestra, respuesta con contadores correctos, preguntas disponibles en banco
-- [ ] T069 [P] [US3] Escribir unit test `test_rbac_editor_cannot_access_config` en `backend/tests/unit/test_rbac.py` — verifica que `require_roles(["admin"])` lanza 403 cuando se pasa token de editor
+- [x] T065 [P] [US3] Escribir test de integración `test_list_questions_with_filters` en `backend/tests/integration/test_questions.py` — verifica paginación, filtro por `tema`, filtro por `activa`
+- [x] T066 [P] [US3] Escribir test de integración `test_create_question_validation` en `backend/tests/integration/test_questions.py` — verifica: 201 con datos válidos, 400 si `respuesta_correcta` no es A/B/C/D
+- [x] T067 [P] [US3] Escribir test de integración `test_soft_delete_question` en `backend/tests/integration/test_questions.py` — verifica: 204, pregunta no aparece en `GET ?activa=true`, pero sí en `GET ?activa=false`
+- [x] T068 [P] [US3] Escribir test de integración `test_import_csv` en `backend/tests/integration/test_questions.py` — verifica: upload de CSV de muestra, respuesta con contadores correctos, preguntas disponibles en banco
+- [x] T069 [P] [US3] Escribir unit test `test_rbac_editor_cannot_access_config` en `backend/tests/unit/test_rbac.py` — verifica que `require_roles(["admin"])` lanza 403 cuando se pasa token de editor
 
 ### Implementación US3
 
-- [ ] T070 [US3] Crear `backend/app/services/question_service.py` con métodos: `list_questions(tema, activa, q, page, page_size, session)`, `create_question(data, session)`, `get_question(id, session)`, `update_question(id, data, session)` (verifica no hay intento activo antes de cambiar respuesta_correcta), `soft_delete(id, session)` (verifica no hay intento activo), `import_csv(file_content, session)` (parsea CSV, upsert por id, retorna estadísticas), `list_temas(session)`
-- [ ] T071 [US3] Crear `backend/app/routers/questions.py` — todos los endpoints del contrato `contracts/questions-api.md`: `GET /`, `POST /`, `GET /temas`, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`, `POST /import`; aplica `require_roles(["admin", "editor"])` en todos
-- [ ] T072 [P] [US3] Crear `frontend/components/admin/QuestionForm.vue` — formulario de pregunta: campos tema (select con temas disponibles), pregunta (textarea), opciones A/B/C/D (text inputs), selector de respuesta correcta (radio A/B/C/D), imagen_archivo (text input para ruta), descripcion_imagen (text input), fundamento_juridico (textarea); emite `submit(data)` y `cancel`
-- [ ] T073 [P] [US3] Crear `frontend/components/admin/ImportForm.vue` — componente de importación CSV: input file, botón upload, muestra resultado (insertadas/actualizadas/errores) tras respuesta del API
-- [ ] T074 [US3] Crear `frontend/pages/admin/questions/index.vue` — listado del banco: tabla paginada con columnas (ID, tema, pregunta truncada, activa, acciones); filtros por tema y búsqueda libre; botones "Nueva pregunta" e "Importar CSV"; modal de confirmación para eliminar
-- [ ] T075 [P] [US3] Crear `frontend/pages/admin/questions/new.vue` — formulario para crear nueva pregunta usando `QuestionForm.vue`; llama `POST /api/questions`; redirige a `/admin/questions` tras éxito
-- [ ] T076 [P] [US3] Crear `frontend/pages/admin/questions/[id]/edit.vue` — formulario para editar pregunta: carga pregunta con `GET /api/questions/{id}`, muestra `QuestionForm` pre-cargado; llama `PUT /api/questions/{id}`; redirige a `/admin/questions` tras éxito
+- [x] T070 [US3] Crear `backend/app/services/question_service.py` con métodos: `list_questions(tema, activa, q, page, page_size, session)`, `create_question(data, session)`, `get_question(id, session)`, `update_question(id, data, session)` (verifica no hay intento activo antes de cambiar respuesta_correcta), `soft_delete(id, session)` (verifica no hay intento activo), `import_csv(file_content, session)` (parsea CSV, upsert por id, retorna estadísticas), `list_temas(session)`
+- [x] T071 [US3] Crear `backend/app/routers/questions.py` — todos los endpoints del contrato `contracts/questions-api.md`: `GET /`, `POST /`, `GET /temas`, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`, `POST /import`; aplica `require_roles(["admin", "editor"])` en todos
+- [x] T072 [P] [US3] Crear `frontend/components/admin/QuestionForm.vue` — formulario de pregunta: campos tema (select con temas disponibles), pregunta (textarea), opciones A/B/C/D (text inputs), selector de respuesta correcta (radio A/B/C/D), imagen_archivo (text input para ruta), descripcion_imagen (text input), fundamento_juridico (textarea); emite `submit(data)` y `cancel`
+- [x] T073 [P] [US3] Crear `frontend/components/admin/ImportForm.vue` — componente de importación CSV: input file, botón upload, muestra resultado (insertadas/actualizadas/errores) tras respuesta del API
+- [x] T074 [US3] Crear `frontend/pages/admin/questions/index.vue` — listado del banco: tabla paginada con columnas (ID, tema, pregunta truncada, activa, acciones); filtros por tema y búsqueda libre; botones "Nueva pregunta" e "Importar CSV"; modal de confirmación para eliminar
+- [x] T075 [P] [US3] Crear `frontend/pages/admin/questions/new.vue` — formulario para crear nueva pregunta usando `QuestionForm.vue`; llama `POST /api/questions`; redirige a `/admin/questions` tras éxito
+- [x] T076 [P] [US3] Crear `frontend/pages/admin/questions/[id]/edit.vue` — formulario para editar pregunta: carga pregunta con `GET /api/questions/{id}`, muestra `QuestionForm` pre-cargado; llama `PUT /api/questions/{id}`; redirige a `/admin/questions` tras éxito
 
 **Checkpoint**: US3 lista — banco de preguntas completamente gestionable
 
@@ -191,16 +191,16 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US4 ⚠️ Escribir PRIMERO
 
-- [ ] T077 [P] [US4] Escribir test de integración `test_get_config_admin_only` en `backend/tests/integration/test_admin.py` — verifica: 200 para admin, 403 para editor, 403 para estudiante
-- [ ] T078 [P] [US4] Escribir test de integración `test_update_config_validation` en `backend/tests/integration/test_admin.py` — verifica: 200 con datos válidos, 400 si `num_preguntas` > preguntas activas en banco, 400 si `porcentaje_aprobacion` > 100
-- [ ] T079 [P] [US4] Escribir test de integración `test_config_snapshot_isolation` en `backend/tests/integration/test_admin.py` — verifica que cambiar config no afecta intentos ya iniciados (snapshot guardado en `intentos_examen`)
+- [x] T077 [P] [US4] Escribir test de integración `test_get_config_admin_only` en `backend/tests/integration/test_admin.py` — verifica: 200 para admin, 403 para editor, 403 para estudiante
+- [x] T078 [P] [US4] Escribir test de integración `test_update_config_validation` en `backend/tests/integration/test_admin.py` — verifica: 200 con datos válidos, 400 si `num_preguntas` > preguntas activas en banco, 400 si `porcentaje_aprobacion` > 100
+- [x] T079 [P] [US4] Escribir test de integración `test_config_snapshot_isolation` en `backend/tests/integration/test_admin.py` — verifica que cambiar config no afecta intentos ya iniciados (snapshot guardado en `intentos_examen`)
 
 ### Implementación US4
 
-- [ ] T080 [US4] Crear `backend/app/services/admin_service.py` con métodos: `get_config(session)`, `update_config(data, updated_by_id, session)` (valida `num_preguntas` ≤ preguntas activas, rango de `porcentaje_aprobacion` 0-100)
-- [ ] T081 [US4] Crear `backend/app/routers/admin.py` con endpoints de configuración: `GET /config`, `PUT /config`; aplica `require_roles(["admin"])` en ambos
-- [ ] T082 [P] [US4] Crear `frontend/components/admin/ConfigForm.vue` — formulario de configuración: campos `num_preguntas` (number input, min 1), `segundos_por_pregunta` (number input, min 10), `porcentaje_aprobacion` (number input, 0-100 o null); muestra estado del sistema (configurado/no configurado); botón guardar
-- [ ] T083 [US4] Crear `frontend/pages/admin/config.vue` — página de configuración (solo admin, middleware redirige editores a `/admin`): carga config actual, renderiza `ConfigForm`, muestra confirmación tras guardar; muestra advertencia si `porcentaje_aprobacion` es null
+- [x] T080 [US4] Crear `backend/app/services/admin_service.py` con métodos: `get_config(session)`, `update_config(data, updated_by_id, session)` (valida `num_preguntas` ≤ preguntas activas, rango de `porcentaje_aprobacion` 0-100)
+- [x] T081 [US4] Crear `backend/app/routers/admin.py` con endpoints de configuración: `GET /config`, `PUT /config`; aplica `require_roles(["admin"])` en ambos
+- [x] T082 [P] [US4] Crear `frontend/components/admin/ConfigForm.vue` — formulario de configuración: campos `num_preguntas` (number input, min 1), `segundos_por_pregunta` (number input, min 10), `porcentaje_aprobacion` (number input, 0-100 o null); muestra estado del sistema (configurado/no configurado); botón guardar
+- [x] T083 [US4] Crear `frontend/pages/admin/config.vue` — página de configuración (solo admin, middleware redirige editores a `/admin`): carga config actual, renderiza `ConfigForm`, muestra confirmación tras guardar; muestra advertencia si `porcentaje_aprobacion` es null
 
 **Checkpoint**: US4 lista — administrador puede configurar el simulador sin intervención técnica
 
@@ -214,17 +214,17 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US5 ⚠️ Escribir PRIMERO
 
-- [ ] T084 [P] [US5] Escribir test de integración `test_list_students` en `backend/tests/integration/test_admin.py` — verifica: 200 para admin y editor, paginación funcional, filtro por nombre
-- [ ] T085 [P] [US5] Escribir test de integración `test_create_student_by_editor` en `backend/tests/integration/test_admin.py` — verifica: 201, nuevo usuario puede autenticarse con las credenciales creadas
-- [ ] T086 [P] [US5] Escribir test de integración `test_toggle_student_status` en `backend/tests/integration/test_admin.py` — verifica: usuario desactivado recibe 403 al intentar login
+- [x] T084 [P] [US5] Escribir test de integración `test_list_students` en `backend/tests/integration/test_admin.py` — verifica: 200 para admin y editor, paginación funcional, filtro por nombre
+- [x] T085 [P] [US5] Escribir test de integración `test_create_student_by_editor` en `backend/tests/integration/test_admin.py` — verifica: 201, nuevo usuario puede autenticarse con las credenciales creadas
+- [x] T086 [P] [US5] Escribir test de integración `test_toggle_student_status` en `backend/tests/integration/test_admin.py` — verifica: usuario desactivado recibe 403 al intentar login
 
 ### Implementación US5
 
-- [ ] T087 [US5] Agregar métodos de gestión de estudiantes a `backend/app/services/admin_service.py`: `list_students(q, activo, page, page_size, session)`, `create_student(nombre, email, password, session)` (verifica unicidad, hashea password, rol=estudiante), `get_student_with_history(id, session)`, `toggle_student_status(id, activo, session)`
-- [ ] T088 [US5] Agregar endpoints de estudiantes al router en `backend/app/routers/admin.py`: `GET /students`, `POST /students`, `GET /students/{id}`, `PATCH /students/{id}/status`; `GET /students` y `POST /students` con `require_roles(["admin", "editor"])`; `GET /students/{id}` y `PATCH /students/{id}/status` con `require_roles(["admin"])`
-- [ ] T089 [P] [US5] Crear `frontend/components/admin/StudentList.vue` — tabla de estudiantes: columnas (nombre, email, estado, total intentos, último resultado); indicador visual activo/inactivo; botón "Ver detalle" (solo admin); búsqueda por nombre o email
-- [ ] T090 [US5] Crear `frontend/pages/admin/students/index.vue` — listado paginado de estudiantes con `StudentList.vue`; botón "Agregar estudiante" navega a `/admin/students/new`; carga dinámica de datos con filtros
-- [ ] T091 [P] [US5] Crear `frontend/pages/admin/students/new.vue` — formulario: nombre completo, email, contraseña temporal; llama `POST /api/admin/students`; redirige a `/admin/students` tras éxito con mensaje de confirmación
+- [x] T087 [US5] Agregar métodos de gestión de estudiantes a `backend/app/services/admin_service.py`: `list_students(q, activo, page, page_size, session)`, `create_student(nombre, email, password, session)` (verifica unicidad, hashea password, rol=estudiante), `get_student_with_history(id, session)`, `toggle_student_status(id, activo, session)`
+- [x] T088 [US5] Agregar endpoints de estudiantes al router en `backend/app/routers/admin.py`: `GET /students`, `POST /students`, `GET /students/{id}`, `PATCH /students/{id}/status`; `GET /students` y `POST /students` con `require_roles(["admin", "editor"])`; `GET /students/{id}` y `PATCH /students/{id}/status` con `require_roles(["admin"])`
+- [x] T089 [P] [US5] Crear `frontend/components/admin/StudentList.vue` — tabla de estudiantes: columnas (nombre, email, estado, total intentos, último resultado); indicador visual activo/inactivo; botón "Ver detalle" (solo admin); búsqueda por nombre o email
+- [x] T090 [US5] Crear `frontend/pages/admin/students/index.vue` — listado paginado de estudiantes con `StudentList.vue`; botón "Agregar estudiante" navega a `/admin/students/new`; carga dinámica de datos con filtros
+- [x] T091 [P] [US5] Crear `frontend/pages/admin/students/new.vue` — formulario: nombre completo, email, contraseña temporal; llama `POST /api/admin/students`; redirige a `/admin/students` tras éxito con mensaje de confirmación
 
 **Checkpoint**: US5 lista — gestión completa de estudiantes desde el panel administrativo
 
@@ -238,14 +238,14 @@ frontend/tests/            # Pruebas Vitest
 
 ### Tests para US6 ⚠️ Escribir PRIMERO
 
-- [ ] T092 [P] [US6] Escribir test de integración `test_history_only_own_attempts` en `backend/tests/integration/test_exams.py` — verifica que estudiante A no puede ver intentos de estudiante B en `/api/exams/history`
-- [ ] T093 [P] [US6] Escribir test de integración `test_results_not_available_during_exam` en `backend/tests/integration/test_exams.py` — verifica: 409 si se intenta `GET /api/exams/{id}/results` con intento no finalizado
+- [x] T092 [P] [US6] Escribir test de integración `test_history_only_own_attempts` en `backend/tests/integration/test_exams.py` — verifica que estudiante A no puede ver intentos de estudiante B en `/api/exams/history`
+- [x] T093 [P] [US6] Escribir test de integración `test_results_not_available_during_exam` en `backend/tests/integration/test_exams.py` — verifica: 409 si se intenta `GET /api/exams/{id}/results` con intento no finalizado
 
 ### Implementación US6
 
-- [ ] T094 [P] [US6] Crear `frontend/components/results/HistoryCard.vue` — tarjeta de intento histórico: fecha, puntuación (X/N), resultado (aprobado/reprobado en verde/rojo), botón "Ver detalle"
-- [ ] T095 [US6] Crear `frontend/pages/history.vue` — historial del estudiante: lista paginada de `HistoryCard`; carga `GET /api/exams/history`; cada card enlaza a `/exam/{id}/results`
-- [ ] T096 [US6] Crear `frontend/pages/admin/students/[id].vue` — detalle de estudiante para admin: info del estudiante (nombre, email, estado) + historial completo de intentos en tabla (fecha, puntuación, resultado); enlace a cada resultado
+- [x] T094 [P] [US6] Crear `frontend/components/results/HistoryCard.vue` — tarjeta de intento histórico: fecha, puntuación (X/N), resultado (aprobado/reprobado en verde/rojo), botón "Ver detalle"
+- [x] T095 [US6] Crear `frontend/pages/history.vue` — historial del estudiante: lista paginada de `HistoryCard`; carga `GET /api/exams/history`; cada card enlaza a `/exam/{id}/results`
+- [x] T096 [US6] Crear `frontend/pages/admin/students/[id].vue` — detalle de estudiante para admin: info del estudiante (nombre, email, estado) + historial completo de intentos en tabla (fecha, puntuación, resultado); enlace a cada resultado
 
 **Checkpoint**: US6 lista — historial completo accesible para estudiantes y admins
 
@@ -255,15 +255,15 @@ frontend/tests/            # Pruebas Vitest
 
 **Propósito**: Mejoras que afectan múltiples historias de usuario.
 
-- [ ] T097 [P] Agregar manejador global de excepciones a `backend/app/main.py` — captura `RequestValidationError` (422 con mensajes legibles), `HTTPException` (pass-through), y excepciones no capturadas (500 con log)
-- [ ] T098 [P] Configurar logging estructurado en `backend/app/core/settings.py` — nivel INFO en producción, DEBUG en desarrollo; formato JSON para producción
-- [ ] T099 [P] Crear `nginx.conf` para producción — sirve `/static/` directamente desde volumen de imágenes, hace proxy de `/api/` al backend, hace proxy del resto al frontend Nuxt
-- [ ] T100 [P] Escribir unit tests para `AuthService` en `backend/tests/unit/test_auth_service.py` — login exitoso, login con contraseña incorrecta, login con usuario inactivo
-- [ ] T101 [P] Escribir unit tests para `QuestionService` en `backend/tests/unit/test_question_service.py` — import CSV con encoding correcto, soft-delete no disponible cuando intento activo
-- [ ] T102 [P] Escribir tests de contrato RBAC en `backend/tests/contract/test_rbac_contracts.py` — verifica que los 3 roles solo acceden a sus endpoints permitidos (cubre todos los routers)
-- [ ] T103 [P] Configurar página de error en `frontend/error.vue` — maneja 404 (página no encontrada) y 500 (error de servidor) con mensajes en español y link a inicio
-- [ ] T104 [P] Agregar índices de base de datos a la migración en `backend/alembic/versions/001_initial_schema.py` — índices en `preguntas.tema`, `preguntas.activa`, `intentos_examen.estudiante_id`, `intentos_examen.finalizado_at`, `respuestas_intento.intento_id`
-- [ ] T105 Ejecutar y validar todos los escenarios de `specs/001-exam-simulator/quickstart.md` contra el entorno de desarrollo; documentar y corregir cualquier discrepancia encontrada
+- [x] T097 [P] Agregar manejador global de excepciones a `backend/app/main.py` — captura `RequestValidationError` (422 con mensajes legibles), `HTTPException` (pass-through), y excepciones no capturadas (500 con log)
+- [x] T098 [P] Configurar logging estructurado en `backend/app/core/settings.py` — nivel INFO en producción, DEBUG en desarrollo; formato JSON para producción
+- [x] T099 [P] Crear `nginx.conf` para producción — sirve `/static/` directamente desde volumen de imágenes, hace proxy de `/api/` al backend, hace proxy del resto al frontend Nuxt
+- [x] T100 [P] Escribir unit tests para `AuthService` en `backend/tests/unit/test_auth_service.py` — login exitoso, login con contraseña incorrecta, login con usuario inactivo
+- [x] T101 [P] Escribir unit tests para `QuestionService` en `backend/tests/unit/test_question_service.py` — import CSV con encoding correcto, soft-delete no disponible cuando intento activo
+- [x] T102 [P] Escribir tests de contrato RBAC en `backend/tests/contract/test_rbac_contracts.py` — verifica que los 3 roles solo acceden a sus endpoints permitidos (cubre todos los routers)
+- [x] T103 [P] Configurar página de error en `frontend/error.vue` — maneja 404 (página no encontrada) y 500 (error de servidor) con mensajes en español y link a inicio
+- [x] T104 [P] Agregar índices de base de datos a la migración en `backend/alembic/versions/001_initial_schema.py` — índices en `preguntas.tema`, `preguntas.activa`, `intentos_examen.estudiante_id`, `intentos_examen.finalizado_at`, `respuestas_intento.intento_id`
+- [x] T105 Ejecutar y validar todos los escenarios de `specs/001-exam-simulator/quickstart.md` contra el entorno de desarrollo; documentar y corregir cualquier discrepancia encontrada
 
 ---
 

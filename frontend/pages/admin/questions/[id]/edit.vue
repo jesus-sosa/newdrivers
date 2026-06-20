@@ -18,7 +18,7 @@
     <div v-else class="form-card">
       <p v-if="submitError" class="submit-error">{{ submitError }}</p>
 
-      <QuestionForm
+      <AdminQuestionForm
         :initial-data="initialData"
         :is-loading="isSubmitting"
         @submit="handleSubmit"

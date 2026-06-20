@@ -117,18 +117,19 @@ const form = reactive<ConfigFormData>({
   porcentaje_aprobacion: props.initialData?.porcentaje_aprobacion ?? null,
 })
 
-// Use a string intermediary for the optional porcentaje_aprobacion input
-// so that an empty string maps to null
-const porcentajeInput = ref<string>(
-  props.initialData?.porcentaje_aprobacion != null
-    ? String(props.initialData.porcentaje_aprobacion)
-    : ''
+// Vue 3 automatically converts <input type="number"> values to numbers via looseToNumber,
+// so this ref holds either a number (valid input) or '' (empty field).
+const porcentajeInput = ref<number | string>(
+  props.initialData?.porcentaje_aprobacion ?? ''
 )
 
 watch(porcentajeInput, (val) => {
-  const trimmed = val.trim()
-  const parsed = parseFloat(trimmed)
-  form.porcentaje_aprobacion = trimmed === '' || !Number.isFinite(parsed) ? null : parsed
+  if (val === '' || val == null) {
+    form.porcentaje_aprobacion = null
+  } else {
+    const num = typeof val === 'number' ? val : parseFloat(String(val).trim())
+    form.porcentaje_aprobacion = Number.isFinite(num) ? num : null
+  }
 })
 
 watch(
@@ -138,8 +139,7 @@ watch(
     form.num_preguntas = data.num_preguntas ?? 20
     form.segundos_por_pregunta = data.segundos_por_pregunta ?? 60
     form.porcentaje_aprobacion = data.porcentaje_aprobacion ?? null
-    porcentajeInput.value =
-      data.porcentaje_aprobacion != null ? String(data.porcentaje_aprobacion) : ''
+    porcentajeInput.value = data.porcentaje_aprobacion ?? ''
   },
   { deep: true }
 )

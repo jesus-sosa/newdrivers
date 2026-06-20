@@ -42,6 +42,19 @@ class StudentStatusUpdate(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Dashboard stats
+# ---------------------------------------------------------------------------
+
+@router.get("/stats")
+def get_stats(
+    session: Annotated[Session, Depends(get_session)],
+    _current_user=Depends(_admin_or_editor),
+):
+    """GET /stats — KPI counts for the admin dashboard."""
+    return admin_service.get_stats(session)
+
+
+# ---------------------------------------------------------------------------
 # Config endpoints
 # ---------------------------------------------------------------------------
 
